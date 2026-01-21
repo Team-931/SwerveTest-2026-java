@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.studica.frc.AHRS;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -16,11 +18,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Drivetrain {
   public static final double kMaxSpeed = .0;//3.0; // 3 meters per second
   public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
-
-  private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381);
-  private final Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381);
-  private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
-  private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
+  private final Rotation2d ClockW90 = new Rotation2d(0, 1);
+  private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381).rotateBy(ClockW90);
+  private final Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381).rotateBy(ClockW90);
+  private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381).rotateBy(ClockW90);
+  private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381).rotateBy(ClockW90);
 
   private final SwerveModule m_frontLeft = new SwerveModule(3, 5, false);
   private final SwerveModule m_frontRight = new SwerveModule(9, 6, true);
@@ -28,21 +30,6 @@ public class Drivetrain {
   private final SwerveModule m_backRight = new SwerveModule(8, 7, true);
 
   private final  AHRS m_gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
-
-  private final SwerveDriveKinematics m_kinematics =
-      new SwerveDriveKinematics(
-          m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
-
-  private final SwerveDriveOdometry m_odometry =
-      new SwerveDriveOdometry(
-          m_kinematics,
-          m_gyro.getRotation2d(),
-          new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_backLeft.getPosition(),
-            m_backRight.getPosition()
-          });
 
   public Drivetrain() {
     m_gyro.reset();
@@ -59,28 +46,26 @@ public class Drivetrain {
   public void drive(
       double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
     
-SmartDashboard.putNumber("FL angle", m_frontLeft.getPosition().angle.getDegrees());
-SmartDashboard.putNumber("FR angle", m_frontRight.getPosition().angle.getDegrees());
-SmartDashboard.putNumber("BL angle", m_backLeft.getPosition().angle.getDegrees());
-SmartDashboard.putNumber("BR angle", m_backRight.getPosition().angle.getDegrees());
-   var swerveModuleStates =
-        m_kinematics.toSwerveModuleStates(
-            ChassisSpeeds.discretize(
-                fieldRelative
-                    ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                        xSpeed, ySpeed, rot, m_gyro.getRotation2d())
-                    : new ChassisSpeeds(xSpeed, ySpeed, rot),
-                periodSeconds));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_backLeft.setDesiredState(swerveModuleStates[2]);
-    m_backRight.setDesiredState(swerveModuleStates[3]);
- 
-  }
+  SmartDashboard.putNumber("FL angle", m_frontLeft.getPosition().angle.getDegrees());
+  SmartDashboard.putNumber("FR angle", m_frontRight.getPosition().angle.getDegrees());
+  SmartDashboard.putNumber("BL angle", m_backLeft.getPosition().angle.getDegrees());
+  SmartDashboard.putNumber("BR angle", m_backRight.getPosition().angle.getDegrees());
+
+  Translation2d FLVel, BLVel, FRVel, BRVel,  
+  BaseVel = new Translation2d(xSpeed, ySpeed);
+  FLVel = BaseVel.plus( m_frontLeftLocation.times(rot));
+  BLVel = BaseVel.plus(m_backLeftLocation.times(rot));
+  FRVel = BaseVel.plus(m_frontRightLocation.times(rot));
+  BRVel = BaseVel.plus(m_backRightLocation.times(rot));
+  
+  m_frontLeft.setVel(FLVel);
+  m_backLeft.setVel(BLVel);
+  m_frontRight.setVel(FRVel);
+  m_backRight.setVel(BRVel);
+}
 
   /** Updates the field relative position of the robot. */
-  public void updateOdometry() {
+/*   public void updateOdometry() {
     m_odometry.update(
         m_gyro.getRotation2d(),
         new SwerveModulePosition[] {
@@ -90,4 +75,4 @@ SmartDashboard.putNumber("BR angle", m_backRight.getPosition().angle.getDegrees(
           m_backRight.getPosition()
         });
   }
-}
+ */}

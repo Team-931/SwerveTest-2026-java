@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -77,7 +78,7 @@ public class SwerveModule {
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
-    m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    //m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   private final Rotation2d turnAngle() {return new Rotation2d(2 * Math.PI / kEncoderResolution * m_turningEncoder.getPosition());}
@@ -102,38 +103,11 @@ public class SwerveModule {
         m_driveEncoder.getPosition(), turnAngle());
   }
 
-  /**
-   * Sets the desired state for the module.
-   *
-   * @param desiredState Desired state with speed and angle.
-   */
-  public void setDesiredState(SwerveModuleState desiredState) {
-    var encoderRotation = turnAngle();
-
-    // Optimize the reference state to avoid spinning further than 90 degrees
-    desiredState.optimize(encoderRotation);
-
-    // Scale speed by cosine of angle error. This scales down movement perpendicular to the desired
-    // direction of travel that can occur when modules change directions. This results in smoother
-    // driving.
-    desiredState.cosineScale(encoderRotation);
-
-    // Calculate the drive output from the drive PID controller.
-
-    final double driveOutput =
-        m_drivePIDController.calculate(m_driveEncoder.getVelocity(), desiredState.speedMetersPerSecond);
-
-    final double driveFeedforward = m_driveFeedforward.calculate(desiredState.speedMetersPerSecond);
-
-    // Calculate the turning motor output from the turning PID controller.
-    final double turnOutput =
-        m_turningPIDController.calculate(
-            turnAngle().getRadians(), desiredState.angle.getRadians());
-
-    final double turnFeedforward =
-        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
-
-    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
-    m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+  private Translation2d velGoal = new Translation2d();
+  public void setVel(Translation2d translation2d) {
+    velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
+    m_drivePIDController.calculate(m_driveMotor.get(), velGoal.getX());
+    m_turningPIDController.calculate(velGoal.getY()/velGoal.getX() , 0);
   }
+ 
 }
