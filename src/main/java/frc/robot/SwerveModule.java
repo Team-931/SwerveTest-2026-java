@@ -4,18 +4,22 @@
 
 package frc.robot;
 
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
+import frc.robot.Constants.Module;
 
 public class SwerveModule {
   private static final double kWheelRadius = 0.0508;
@@ -32,16 +36,10 @@ public class SwerveModule {
   private final RelativeEncoder m_turningEncoder;
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
+  private final SparkClosedLoopController m_drivePIDController;
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(
-          1,
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
+  private final SparkClosedLoopController m_turningPIDController;
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
@@ -65,6 +63,20 @@ public class SwerveModule {
 
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
+
+    m_drivePIDController = m_driveMotor.getClosedLoopController();
+    m_turningPIDController =
+      m_turningMotor.getClosedLoopController();
+
+    SparkMaxConfig config = new SparkMaxConfig();  
+    config.closedLoop.p(Module.posP, Module.posSlot)
+                     .p(Module.velP, Module.velSlot);
+
+    m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+    config.encoder.positionConversionFactor(28);
+
+    m_turningMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -106,8 +118,9 @@ public class SwerveModule {
   private Translation2d velGoal = new Translation2d();
   public void setVel(Translation2d translation2d) {
     velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
-    m_drivePIDController.calculate(m_driveMotor.get(), velGoal.getX());
-    m_turningPIDController.calculate(velGoal.getY()/velGoal.getX() , 0);
+    double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
+    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, Module.velSlot);
+    m_turningPIDController.setSetpoint(velGoal.getY()/X, ControlType.kVelocity, Module.velSlot);
   }
  
 }
