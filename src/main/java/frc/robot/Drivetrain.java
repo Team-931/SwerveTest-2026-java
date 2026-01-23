@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
-  public static final double kMaxSpeed = .0;//3.0; // 3 meters per second
+  public static final double kMaxSpeed = 3.0; // 3 meters per second
   public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
   private final Rotation2d ClockW90 = new Rotation2d(0, 1);
   private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381).rotateBy(ClockW90);

@@ -18,7 +18,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Module;
 
 public class SwerveModule {
@@ -58,7 +59,7 @@ public class SwerveModule {
       boolean reverse
       ) {
     m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
-    m_driveMotor.setInverted(reverse);
+    m_driveMotor.setInverted(false);
     m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
 
     m_driveEncoder = m_driveMotor.getEncoder();
@@ -73,8 +74,10 @@ public class SwerveModule {
                      .p(Module.velP, Module.velSlot);
 
     m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
-    config.encoder.positionConversionFactor(28);
+
+    config.encoder.positionConversionFactor(2 * Math.PI / kEncoderResolution);
+    config.closedLoop.p(Module.posP / 2 / Math.PI * kEncoderResolution, Module.posSlot)
+                     .p(Module.velP, Module.velSlot);
 
     m_turningMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -93,7 +96,7 @@ public class SwerveModule {
     //m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
-  private final Rotation2d turnAngle() {return new Rotation2d(2 * Math.PI / kEncoderResolution * m_turningEncoder.getPosition());}
+  private final Rotation2d turnAngle() {return new Rotation2d(m_turningEncoder.getPosition());}
 
   /**
    * Returns the current state of the module.
@@ -115,12 +118,17 @@ public class SwerveModule {
         m_driveEncoder.getPosition(), turnAngle());
   }
 
-  private Translation2d velGoal = new Translation2d();
+  //private Translation2d velGoal = new Translation2d();
   public void setVel(Translation2d translation2d) {
-    velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
-    double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
-    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, Module.velSlot);
-    m_turningPIDController.setSetpoint(velGoal.getY()/X, ControlType.kVelocity, Module.velSlot);
+    //velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
+    double X = translation2d.getNorm();//velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
+    m_drivePIDController.setSetpoint(X*500, ControlType.kVelocity, Module.velSlot);//Todo: coversion factors
+
+    double angle = Math.atan2(translation2d.getY(), translation2d.getX());
+    m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
+    /* 
+    SmartDashboard.putNumber("slope", velGoal.getY()/X);
+    m_turningPIDController.setSetpoint(-velGoal.getY()/X * 500, ControlType.kVelocity, Module.velSlot);*/
   }
  
 }
