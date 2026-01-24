@@ -73,7 +73,7 @@ public class SwerveModule {
 
     m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    config.encoder.positionConversionFactor(2 * Math.PI / kEncoderResolution);
+    config.encoder.positionConversionFactor(2 * Math.PI / kEncoderResolution);// Current unit: radians
     config.closedLoop.p(Module.posP / 2 / Math.PI * kEncoderResolution, Module.posSlot)
                      .p(Module.velP, Module.velSlot);
 
