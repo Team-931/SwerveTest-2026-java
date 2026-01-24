@@ -18,8 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Module;
 
 public class SwerveModule {
@@ -59,7 +57,7 @@ public class SwerveModule {
       boolean reverse
       ) {
     m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
-    m_driveMotor.setInverted(false);
+    //m_driveMotor.setInverted(false);
     m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
 
     m_driveEncoder = m_driveMotor.getEncoder();

@@ -49,7 +49,11 @@ public class Drivetrain {
 
   Translation2d FLVel, BLVel, FRVel, BRVel,  
   BaseVel = new Translation2d(xSpeed, ySpeed);
-  FLVel = BaseVel.plus( m_frontLeftLocation.times(rot));
+  if(fieldRelative) {
+    var orientationCorrection = m_gyro.getRotation2d().unaryMinus();
+    BaseVel = BaseVel.rotateBy(orientationCorrection);
+  }
+  FLVel = BaseVel.plus(m_frontLeftLocation.times(rot));
   BLVel = BaseVel.plus(m_backLeftLocation.times(rot));
   FRVel = BaseVel.plus(m_frontRightLocation.times(rot));
   BRVel = BaseVel.plus(m_backRightLocation.times(rot));
