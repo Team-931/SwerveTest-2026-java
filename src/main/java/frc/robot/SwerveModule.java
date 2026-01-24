@@ -22,7 +22,7 @@ import frc.robot.Constants.Module;
 
 public class SwerveModule {
   private static final double kWheelRadius = 0.0508;
-  private static final int kEncoderResolution = 28;
+  private static final int turnGearing = 28, driveGearing = 4;
 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
@@ -68,14 +68,20 @@ public class SwerveModule {
       m_turningMotor.getClosedLoopController();
 
     SparkMaxConfig config = new SparkMaxConfig();  
-    config.closedLoop.p(Module.posP, Module.posSlot)
-                     .p(Module.velP, Module.velSlot);
+    config.encoder.positionConversionFactor(2 * Math.PI + kWheelRadius / driveGearing)       // New unit: metera
+                  .velocityConversionFactor(2 * Math.PI + kWheelRadius / driveGearing / 60); // New unit: meters / second
+    config.closedLoop.p(Module.posP / 2 / Math.PI / kWheelRadius * driveGearing, Module.posSlot)
+                     .p(Module.velP / 2 / Math.PI / kWheelRadius * driveGearing * 60, Module.velSlot)
+                     .positionWrappingEnabled(false);
 
     m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    config.encoder.positionConversionFactor(2 * Math.PI / kEncoderResolution);// Current unit: radians
-    config.closedLoop.p(Module.posP / 2 / Math.PI * kEncoderResolution, Module.posSlot)
-                     .p(Module.velP, Module.velSlot);
+    config.encoder.positionConversionFactor(2 * Math.PI / turnGearing)       // New unit: radians
+                  .velocityConversionFactor(2 * Math.PI / turnGearing / 60); // New unit: radians / second
+    config.closedLoop.p(Module.posP / 2 / Math.PI * turnGearing, Module.posSlot)
+                     .p(Module.velP / 2 / Math.PI * turnGearing * 60, Module.velSlot)
+                     .positionWrappingEnabled(true)
+                     .positionWrappingInputRange(-Math.PI, Math.PI);
 
     m_turningMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -117,7 +123,7 @@ public class SwerveModule {
   }
 
   //private Translation2d velGoal = new Translation2d();
-  public void setVel(Translation2d translation2d) {
+  public void setVel(Translation2d translation2d, double period) {
     //velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     double X = translation2d.getNorm();//velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
     m_drivePIDController.setSetpoint(X*500, ControlType.kVelocity, Module.velSlot);//Todo: coversion factors
@@ -126,7 +132,7 @@ public class SwerveModule {
     m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
     /* 
     SmartDashboard.putNumber("slope", velGoal.getY()/X);
-    m_turningPIDController.setSetpoint(-velGoal.getY()/X * 500, ControlType.kVelocity, Module.velSlot);*/
+    m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, Module.velSlot);*/
   }
  
 }

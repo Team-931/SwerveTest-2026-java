@@ -58,10 +58,10 @@ public class Drivetrain {
   FRVel = BaseVel.plus(m_frontRightLocation.times(rot));
   BRVel = BaseVel.plus(m_backRightLocation.times(rot));
   
-  m_frontLeft.setVel(FLVel);
-  m_backLeft.setVel(BLVel);
-  m_frontRight.setVel(FRVel);
-  m_backRight.setVel(BRVel);
+  m_frontLeft.setVel(FLVel, periodSeconds);
+  m_backLeft.setVel(BLVel, periodSeconds);
+  m_frontRight.setVel(FRVel, periodSeconds);
+  m_backRight.setVel(BRVel, periodSeconds);
 }
 
   /** Updates the field relative position of the robot. */
