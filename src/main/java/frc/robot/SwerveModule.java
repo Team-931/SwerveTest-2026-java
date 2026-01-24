@@ -122,17 +122,20 @@ public class SwerveModule {
         m_driveEncoder.getPosition(), turnAngle());
   }
 
-  //private Translation2d velGoal = new Translation2d();
+  private Translation2d velGoal = new Translation2d();
   public void setVel(Translation2d translation2d, double period) {
-    //velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
-    double X = translation2d.getNorm();//velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
-    m_drivePIDController.setSetpoint(X*500, ControlType.kVelocity, Module.velSlot);//Todo: coversion factors
+    velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
+    double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
+    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, Module.velSlot);//Todo: check conversion factors
 
-    double angle = Math.atan2(translation2d.getY(), translation2d.getX());
-    m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
-    /* 
-    SmartDashboard.putNumber("slope", velGoal.getY()/X);
-    m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, Module.velSlot);*/
+    if (Robot.useVelCtrl) {
+      double angle = Math.atan2(translation2d.getY(), translation2d.getX());
+      m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
+    }
+    else  {
+//      SmartDashboard.putNumber("slope", velGoal.getY()/X);
+      m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, Module.velSlot);
+    }
   }
  
 }

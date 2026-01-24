@@ -24,13 +24,17 @@ public class Robot extends TimedRobot {
     //m_swerve.updateOdometry();
   }
 
+  static boolean useField = true, useVelCtrl = false;
+
   @Override
   public void teleopPeriodic() {
-    driveWithJoystick(true);
+    driveWithJoystick(useField);
   }
 
   private final double deadBand = .05;
   private void driveWithJoystick(boolean fieldRelative) {
+    if(m_controller.getAButtonPressed()) useVelCtrl ^= true;
+    if(m_controller.getBButtonPressed()) useField ^= true;
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
