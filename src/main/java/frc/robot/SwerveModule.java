@@ -122,7 +122,7 @@ public class SwerveModule {
         m_driveEncoder.getPosition(), turnAngle());
   }
 
-  private Translation2d velGoal = new Translation2d();
+  private Translation2d velGoal = new Translation2d(); //Todo: test
   public void setVel(Translation2d translation2d, double period) {
     velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
