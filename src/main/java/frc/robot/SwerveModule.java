@@ -81,7 +81,7 @@ public class SwerveModule {
     config.closedLoop.p(Module.posP / 2 / Math.PI * turnGearing, Module.posSlot)
                      .p(Module.velP / 2 / Math.PI * turnGearing * 60, Module.velSlot)
                      .positionWrappingEnabled(true)
-                     .positionWrappingInputRange(-Math.PI, Math.PI);
+                     .positionWrappingInputRange(-Math.PI/2, Math.PI/2); // Todo:  check this
 
     m_turningMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -129,12 +129,12 @@ public class SwerveModule {
     m_drivePIDController.setSetpoint(X, ControlType.kVelocity, Module.velSlot);//Todo: check conversion factors
 
     if (Robot.useVelCtrl) {
-      double angle = Math.atan2(translation2d.getY(), translation2d.getX());
-      m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
-    }
-    else  {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);
       m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, Module.velSlot);
+    }
+    else {
+      double angle = Math.atan2(translation2d.getY(), translation2d.getX());
+      m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
     }
   }
  
