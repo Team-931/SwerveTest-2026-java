@@ -68,8 +68,8 @@ public class SwerveModule {
       m_turningMotor.getClosedLoopController();
 
     SparkMaxConfig config = new SparkMaxConfig();  
-    config.encoder.positionConversionFactor(2 * Math.PI + kWheelRadius / driveGearing)       // New unit: metera
-                  .velocityConversionFactor(2 * Math.PI + kWheelRadius / driveGearing / 60); // New unit: meters / second
+    config.encoder.positionConversionFactor(2 * Math.PI * kWheelRadius / driveGearing)       // New unit: metera
+                  .velocityConversionFactor(2 * Math.PI * kWheelRadius / driveGearing / 60); // New unit: meters / second
     config.closedLoop.p(Module.posP / 2 / Math.PI / kWheelRadius * driveGearing, Module.posSlot)
                      .p(Module.velP / 2 / Math.PI / kWheelRadius * driveGearing * 60, Module.velSlot)
                      .positionWrappingEnabled(false);
@@ -122,9 +122,9 @@ public class SwerveModule {
         m_driveEncoder.getPosition(), turnAngle());
   }
 
-  private Translation2d velGoal = new Translation2d();
+  //private Translation2d velGoal = new Translation2d();
   public void setVel(Translation2d translation2d, double period) {
-    velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
+    Translation2d velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
     m_drivePIDController.setSetpoint(X, ControlType.kVelocity, Module.velSlot);//Todo: check conversion factors
 
