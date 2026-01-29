@@ -23,10 +23,10 @@ public class Drivetrain {
         Math.max(m_frontLeftLocation.getNorm(), Math.max(m_frontRightLocation.getNorm(), 
         Math.max(m_backLeftLocation.getNorm(), m_backRightLocation.getNorm())));
 
-  private final SwerveModule m_frontLeft = new SwerveModule(3, 5, false);
-  private final SwerveModule m_frontRight = new SwerveModule(9, 6, true);
-  private final SwerveModule m_backLeft = new SwerveModule(2, 4, false);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7, true);
+  private final SwerveModule m_frontLeft = new SwerveModule(3, 5);
+  private final SwerveModule m_frontRight = new SwerveModule(9, 6);
+  private final SwerveModule m_backLeft = new SwerveModule(2, 4);
+  private final SwerveModule m_backRight = new SwerveModule(8, 7);
 
   private final  AHRS m_gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
