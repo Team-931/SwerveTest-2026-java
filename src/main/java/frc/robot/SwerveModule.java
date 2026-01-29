@@ -13,21 +13,19 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+//import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.Constants.Module;
+import frc.robot.Constants.SwvModConst;
 
 public class SwerveModule {
-  private static final double kWheelRadius = 0.0508;
-  private static final int turnGearing = 28, driveGearing = 4;
-
+/* 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
       2 * Math.PI; // radians per second squared
-
+ */
   private final SparkMax m_driveMotor;
   private final SparkMax m_turningMotor;
 
@@ -41,9 +39,9 @@ public class SwerveModule {
   private final SparkClosedLoopController m_turningPIDController;
 
   // Gains are for example purposes only - must be determined for your own robot!
-  private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
+  /* private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
   private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
-
+ */
   /**
    * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
    *
@@ -66,18 +64,18 @@ public class SwerveModule {
       m_turningMotor.getClosedLoopController();
 
     SparkMaxConfig config = new SparkMaxConfig();  
-    config.encoder.positionConversionFactor(2 * Math.PI * kWheelRadius / driveGearing)       // New unit: metera
-                  .velocityConversionFactor(2 * Math.PI * kWheelRadius / driveGearing / 60); // New unit: meters / second
-    config.closedLoop.p(Module.posP / 2 / Math.PI / kWheelRadius * driveGearing, Module.posSlot)
-                     .p(Module.velP / 2 / Math.PI / kWheelRadius * driveGearing * 60, Module.velSlot)
+    config.encoder.positionConversionFactor(SwvModConst.driveConversion)       // New unit: meters
+                  .velocityConversionFactor(SwvModConst.driveConversion / 60); // New unit: meters / second
+    config.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
+                     .p(SwvModConst.velP / SwvModConst.driveConversion * 60, SwvModConst.velSlot)
                      .positionWrappingEnabled(false);
 
     m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    config.encoder.positionConversionFactor(2 * Math.PI / turnGearing)       // New unit: radians
-                  .velocityConversionFactor(2 * Math.PI / turnGearing / 60); // New unit: radians / second
-    config.closedLoop.p(Module.posP / 2 / Math.PI * turnGearing, Module.posSlot)
-                     .p(Module.velP / 2 / Math.PI * turnGearing * 60, Module.velSlot)
+    config.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
+                  .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
+    config.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot)
+                     .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
                      .positionWrappingInputRange(-Math.PI/2, Math.PI/2); // Todo:  check this
 
@@ -124,15 +122,15 @@ public class SwerveModule {
   public void setVel(Translation2d translation2d, double period) {
     Translation2d velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
-    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, Module.velSlot);//Todo: check conversion factors
+    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//Todo: check conversion factors
 
     if (Robot.useVelCtrl) {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);
-      m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, Module.velSlot);
+      m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
     }
     else {
       double angle = Math.atan2(translation2d.getY(), translation2d.getX());
-      m_turningPIDController.setSetpoint(angle, ControlType.kPosition, Module.posSlot);
+      m_turningPIDController.setSetpoint(angle, ControlType.kPosition, SwvModConst.posSlot);
     }
   }
  

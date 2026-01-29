@@ -6,23 +6,12 @@ package frc.robot;
 
 import com.studica.frc.AHRS;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
- import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
-  public static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed; // 3 meters per second
-  public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
-  private final Rotation2d ClockW90 = new Rotation2d(0, 1);
-  private final Translation2d m_frontLeftLocation = new Translation2d(0.381, 0.381).rotateBy(ClockW90);
-  private final Translation2d m_frontRightLocation = new Translation2d(0.381, -0.381).rotateBy(ClockW90);
-  private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381).rotateBy(ClockW90);
-  private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381).rotateBy(ClockW90);
-  private final double driveRadius = 
-        Math.max(m_frontLeftLocation.getNorm(), Math.max(m_frontRightLocation.getNorm(), 
-        Math.max(m_backLeftLocation.getNorm(), m_backRightLocation.getNorm())));
-
   private final SwerveModule m_frontLeft = new SwerveModule(3, 5);
   private final SwerveModule m_frontRight = new SwerveModule(9, 6);
   private final SwerveModule m_backLeft = new SwerveModule(2, 4);
@@ -52,20 +41,20 @@ public class Drivetrain {
 
   Translation2d FLVel, BLVel, FRVel, BRVel,  
   BaseVel = new Translation2d(xSpeed, ySpeed);
-  double maxSpeed = BaseVel.getNorm() + driveRadius * Math.abs(rot);
-  if (maxSpeed > overloadSpeed) {
-    BaseVel = BaseVel.times(overloadSpeed / maxSpeed);
-    rot *= (overloadSpeed / maxSpeed);
+  double maxSpeed = BaseVel.getNorm() + DrvConst.driveRadius * Math.abs(rot);
+  if (maxSpeed > DrvConst.overloadSpeed) {
+    BaseVel = BaseVel.times(DrvConst.overloadSpeed / maxSpeed);
+    rot *= (DrvConst.overloadSpeed / maxSpeed);
   }
 
   if(fieldRelative) {
     var orientationCorrection = m_gyro.getRotation2d().unaryMinus();
     BaseVel = BaseVel.rotateBy(orientationCorrection);
   }
-  FLVel = BaseVel.plus(m_frontLeftLocation.times(rot));
-  BLVel = BaseVel.plus(m_backLeftLocation.times(rot));
-  FRVel = BaseVel.plus(m_frontRightLocation.times(rot));
-  BRVel = BaseVel.plus(m_backRightLocation.times(rot));
+  FLVel = BaseVel.plus(DrvConst.m_frontLeftLocation.times(rot));
+  BLVel = BaseVel.plus(DrvConst.m_backLeftLocation.times(rot));
+  FRVel = BaseVel.plus(DrvConst.m_frontRightLocation.times(rot));
+  BRVel = BaseVel.plus(DrvConst.m_backRightLocation.times(rot));
   
   m_frontLeft.setVel(FLVel, periodSeconds);
   m_backLeft.setVel(BLVel, periodSeconds);
