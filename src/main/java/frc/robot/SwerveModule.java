@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SwvModConst;
 
 public class SwerveModule {
@@ -118,11 +119,23 @@ public class SwerveModule {
         m_driveEncoder.getPosition(), turnAngle());
   }
 
+  void report(String key) {
+    SmartDashboard.putNumber(key + " angle", turnAngle().getDegrees());
+    SmartDashboard.putNumber(key + " speed", m_driveEncoder.getVelocity());
+    SmartDashboard.putNumber(key + " setpoint", X);
+  }
+
+  void fullSpeed() {
+    m_driveMotor.set(-1);
+  }
+
+  private double X;//moved out of setVel only for reporting purpose
+
   //private Translation2d velGoal = new Translation2d();
   public void setVel(Translation2d translation2d, double period) {
     Translation2d velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
-    double X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();
-    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//Todo: check conversion factors
+    X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();//TODO: make X local again
+    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//TODO: check conversion factors
 
     if (Robot.useVelCtrl) {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);

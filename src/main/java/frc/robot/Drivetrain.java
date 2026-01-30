@@ -7,12 +7,11 @@ package frc.robot;
 import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
-  private final SwerveModule m_frontLeft = new SwerveModule(3, 5);
+  private final SwerveModule m_frontLeft = new SwerveModule(3, 5);//TODO: CAN IDs -> constants
   private final SwerveModule m_frontRight = new SwerveModule(9, 6);
   private final SwerveModule m_backLeft = new SwerveModule(2, 4);
   private final SwerveModule m_backRight = new SwerveModule(8, 7);
@@ -34,11 +33,6 @@ public class Drivetrain {
   public void drive(
       double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
     
-  SmartDashboard.putNumber("FL angle", m_frontLeft.getPosition().angle.getDegrees());
-  SmartDashboard.putNumber("FR angle", m_frontRight.getPosition().angle.getDegrees());
-  SmartDashboard.putNumber("BL angle", m_backLeft.getPosition().angle.getDegrees());
-  SmartDashboard.putNumber("BR angle", m_backRight.getPosition().angle.getDegrees());
-
   Translation2d FLVel, BLVel, FRVel, BRVel,  
   BaseVel = new Translation2d(xSpeed, ySpeed);
   double maxSpeed = BaseVel.getNorm() + DrvConst.driveRadius * Math.abs(rot);
@@ -48,19 +42,32 @@ public class Drivetrain {
   }
 
   if(fieldRelative) {
-    var orientationCorrection = m_gyro.getRotation2d().unaryMinus();
-    BaseVel = BaseVel.rotateBy(orientationCorrection);
+    BaseVel = BaseVel.rotateBy(m_gyro.getRotation2d().unaryMinus());
   }
-  FLVel = BaseVel.plus(DrvConst.m_frontLeftLocation.times(rot));
-  BLVel = BaseVel.plus(DrvConst.m_backLeftLocation.times(rot));
-  FRVel = BaseVel.plus(DrvConst.m_frontRightLocation.times(rot));
-  BRVel = BaseVel.plus(DrvConst.m_backRightLocation.times(rot));
+  FLVel = BaseVel.plus(DrvConst.m_frontLeftClW.times(rot));
+  BLVel = BaseVel.plus(DrvConst.m_backLeftClW.times(rot));
+  FRVel = BaseVel.plus(DrvConst.m_frontRightClW.times(rot));
+  BRVel = BaseVel.plus(DrvConst.m_backRightClW.times(rot));
   
   m_frontLeft.setVel(FLVel, periodSeconds);
   m_backLeft.setVel(BLVel, periodSeconds);
   m_frontRight.setVel(FRVel, periodSeconds);
   m_backRight.setVel(BRVel, periodSeconds);
 }
+
+void fullSpeed() {
+  m_backLeft.fullSpeed();
+  m_backRight.fullSpeed();
+  m_frontLeft.fullSpeed();
+  m_frontRight.fullSpeed();
+}
+
+   void report() {
+    m_frontLeft.report("FL");
+    m_frontRight.report("FR");
+    m_backLeft.report("BL");
+    m_backRight.report("BR");
+  }
 
   /** Updates the field relative position of the robot. */
 /*   public void updateOdometry() {

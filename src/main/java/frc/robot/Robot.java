@@ -32,21 +32,25 @@ public class Robot extends TimedRobot {
     driveWithJoystick(useField);
   }
 
-  private final double deadBand = .05;
   private void driveWithJoystick(boolean fieldRelative) {
+    m_swerve.report();
     if(m_controller.getAButtonPressed()) useVelCtrl ^= true;
     if(m_controller.getBButtonPressed()) useField ^= true;
+    if(m_controller.getXButton()) {
+      m_swerve.fullSpeed();
+      return;
+    }
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
-        m_xspeedLimiter.calculate(MathUtil.applyDeadband(m_controller.getLeftY(), deadBand))
+        m_xspeedLimiter.calculate(MathUtil.applyDeadband(m_controller.getLeftY(), Constants.deadBand))
             * DrvConst.kMaxSpeed;
 
     // Get the y speed or sideways/strafe speed. We are inverting this because
     // we want a positive value when we pull to the left. Xbox controllers
     // return positive values when you pull to the right by default.
     final var ySpeed =
-        m_yspeedLimiter.calculate(MathUtil.applyDeadband(m_controller.getLeftX(), deadBand))
+        m_yspeedLimiter.calculate(MathUtil.applyDeadband(m_controller.getLeftX(), Constants.deadBand))
             * DrvConst.kMaxSpeed;
 
     // Get the rate of angular rotation. We are inverting this because we want a
@@ -54,7 +58,7 @@ public class Robot extends TimedRobot {
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
     final var rot =
-        m_rotLimiter.calculate(MathUtil.applyDeadband(m_controller.getRightX(), deadBand))
+        m_rotLimiter.calculate(MathUtil.applyDeadband(m_controller.getRightX(), Constants.deadBand))
             * DrvConst.kMaxAngularSpeed;
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
