@@ -11,10 +11,10 @@ import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
-  private final SwerveModule m_frontLeft = new SwerveModule(3, 5);//TODO: CAN IDs -> constants
-  private final SwerveModule m_frontRight = new SwerveModule(9, 6);
-  private final SwerveModule m_backLeft = new SwerveModule(2, 4);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7);
+  private final SwerveModule m_frontLeft = new SwerveModule(DrvConst.FLDrv, DrvConst.FLTrn);
+  private final SwerveModule m_frontRight = new SwerveModule(DrvConst.FRDrv, DrvConst.FRTrn);
+  private final SwerveModule m_backLeft = new SwerveModule(DrvConst.BLDrv, DrvConst.BLTrn);
+  private final SwerveModule m_backRight = new SwerveModule(DrvConst.BRDrv, DrvConst.BRTrn);
 
   private final  AHRS m_gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
