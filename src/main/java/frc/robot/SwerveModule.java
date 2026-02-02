@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SwvModConst;
 
 public class SwerveModule {
-/* 
+  /* 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
       2 * Math.PI; // radians per second squared
@@ -69,7 +69,8 @@ public class SwerveModule {
                   .velocityConversionFactor(SwvModConst.driveConversion / 60); // New unit: meters / second
     config.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
                      .p(SwvModConst.velP / SwvModConst.driveConversion * 60, SwvModConst.velSlot)
-                     .positionWrappingEnabled(false);
+                     .positionWrappingEnabled(false)
+                     .feedForward.kV(SwvModConst.DrvFF, SwvModConst.velSlot);
 
     m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

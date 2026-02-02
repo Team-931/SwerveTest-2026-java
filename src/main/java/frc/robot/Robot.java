@@ -40,6 +40,10 @@ public class Robot extends TimedRobot {
       m_swerve.fullSpeed();
       return;
     }
+    if(m_controller.getYButton()) {
+      m_swerve.drive(1, 0, 0, false, getPeriod());
+      return;
+    }
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =

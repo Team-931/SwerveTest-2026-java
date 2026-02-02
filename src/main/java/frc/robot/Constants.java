@@ -11,7 +11,7 @@ public final class Constants {
     public final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed; // 3 meters per second
          static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
-
+        // CAN IDs for the motor controllers, must match the controller's setup
          static final int BRTrn = 7, BRDrv = 8,
                           BLTrn = 4, BLDrv = 2,
                           FRTrn = 6, FRDrv = 9,
@@ -38,7 +38,8 @@ public final class Constants {
         public final static double posP = .1;
         public final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         public final static double velP = .0001;
-        public static final double kWheelRadius = 0.0508;
+        public static final double kWheelRadius = 0.034; //meter
+        static final double DrvFF = .175; //Volt /(m/s) //TODO: tune better
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
                             turnConversion = 2 * Math.PI / turnGearing;
