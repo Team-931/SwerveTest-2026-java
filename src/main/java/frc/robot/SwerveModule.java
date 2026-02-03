@@ -136,7 +136,7 @@ public class SwerveModule {
   public void setVel(Translation2d translation2d, double period) {
     Translation2d velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();//TODO: make X local again
-    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//TODO: check conversion factors
+    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//Done: check conversion factors
 
     if (Robot.useVelCtrl) {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);

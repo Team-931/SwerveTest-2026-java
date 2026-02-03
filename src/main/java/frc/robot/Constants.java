@@ -9,7 +9,7 @@ public final class Constants {
     static final double deadBand = .05;
   
     public final class DrvConst {
-         static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed; // 3 meters per second
+         static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed/* or 5.2 */; // 3 meters per second
          static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
         // CAN IDs for the motor controllers, must match the controller's setup
          static final int BRTrn = 7, BRDrv = 8,
