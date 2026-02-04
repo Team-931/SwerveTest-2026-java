@@ -31,6 +31,7 @@ public final class Constants {
          static final double driveRadius = 
                  Math.max(m_frontLeftLocation.getNorm(), Math.max(m_frontRightLocation.getNorm(), 
                  Math.max(m_backLeftLocation.getNorm(), m_backRightLocation.getNorm())));
+		static final double IMUAngle = -90; // Angle (degrees clockwise) of navX logo right-side-up would be 0 as seen from back
 
     }
     public final class SwvModConst {

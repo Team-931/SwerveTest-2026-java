@@ -19,6 +19,9 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
+  // Report swerve drive data
+  {addPeriodic(m_swerve::report, .25);}
+
   @Override
   public void autonomousPeriodic() {
     driveWithJoystick(false);
@@ -33,7 +36,7 @@ public class Robot extends TimedRobot {
   }
 
   private void driveWithJoystick(boolean fieldRelative) {
-    m_swerve.report();
+    //m_swerve.report();
     if(m_controller.getAButtonPressed()) useVelCtrl ^= true;
     if(m_controller.getBButtonPressed()) useField ^= true;
     if(m_controller.getXButton()) {
@@ -44,6 +47,7 @@ public class Robot extends TimedRobot {
       m_swerve.drive(1, 0, 0, false, getPeriod());
       return;
     }
+    // TODO: have max speed modifiable
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =

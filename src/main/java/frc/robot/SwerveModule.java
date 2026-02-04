@@ -64,7 +64,8 @@ public class SwerveModule {
     m_turningPIDController =
       m_turningMotor.getClosedLoopController();
 
-    SparkMaxConfig config = new SparkMaxConfig();  
+    SparkMaxConfig config = new SparkMaxConfig();
+      // TODO: voltage comp
     config.encoder.positionConversionFactor(SwvModConst.driveConversion)       // New unit: meters
                   .velocityConversionFactor(SwvModConst.driveConversion / 60); // New unit: meters / second
     config.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
