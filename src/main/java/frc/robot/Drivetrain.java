@@ -20,7 +20,11 @@ public class Drivetrain {
 
   public Drivetrain() {
     m_gyro.reset();
-    m_gyro.setAngleAdjustment(DrvConst.IMUAngle);
+    //m_gyro.setAngleAdjustment(DrvConst.IMUAngle);
+  }
+
+  void zeroYaw() {
+    m_gyro.zeroYaw();
   }
 
   /**

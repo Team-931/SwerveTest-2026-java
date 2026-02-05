@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DrvConst;
 
 public class Robot extends TimedRobot {
@@ -35,10 +36,21 @@ public class Robot extends TimedRobot {
     driveWithJoystick(useField);
   }
 
+  @Override
+  public void driverStationConnected() {
+    m_swerve.zeroYaw();
+    showFieldCtr();
+  }
+
+  private void showFieldCtr() {
+    SmartDashboard.putBoolean("Field Centered", useField);
+  }
   private void driveWithJoystick(boolean fieldRelative) {
-    //m_swerve.report();
-    if(m_controller.getAButtonPressed()) useVelCtrl ^= true;
-    if(m_controller.getBButtonPressed()) useField ^= true;
+    if(m_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
+    if(m_controller.getBButtonPressed()) {
+      useField ^= true;
+      showFieldCtr();
+    }
     if(m_controller.getXButton()) {
       m_swerve.fullSpeed();
       return;

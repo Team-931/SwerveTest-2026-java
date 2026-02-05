@@ -65,11 +65,13 @@ public class SwerveModule {
       m_turningMotor.getClosedLoopController();
 
     SparkMaxConfig config = new SparkMaxConfig();
-      // TODO: voltage comp
+      // TODO: check voltage comp
+    config.voltageCompensation(Constants.nominalVoltage);      
     config.encoder.positionConversionFactor(SwvModConst.driveConversion)       // New unit: meters
                   .velocityConversionFactor(SwvModConst.driveConversion / 60); // New unit: meters / second
     config.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
                      .p(SwvModConst.velP / SwvModConst.driveConversion * 60, SwvModConst.velSlot)
+                     .i(SwvModConst.velI, SwvModConst.velSlot)
                      .positionWrappingEnabled(false)
                      .feedForward.kV(SwvModConst.DrvFF, SwvModConst.velSlot);
 
@@ -79,6 +81,7 @@ public class SwerveModule {
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
     config.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot)
                      .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
+                     .i(0, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
                      .positionWrappingInputRange(-Math.PI/2, Math.PI/2); // Todo:  check this
 

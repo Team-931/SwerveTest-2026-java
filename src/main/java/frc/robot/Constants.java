@@ -31,7 +31,7 @@ public final class Constants {
          static final double driveRadius = 
                  Math.max(m_frontLeftLocation.getNorm(), Math.max(m_frontRightLocation.getNorm(), 
                  Math.max(m_backLeftLocation.getNorm(), m_backRightLocation.getNorm())));
-		static final double IMUAngle = -90; // Angle (degrees clockwise) of navX logo right-side-up would be 0 as seen from back
+		//static final double IMUAngle = -90; // Angle (degrees clockwise) of navX logo: right-side-up would be 0 as seen from back
 
     }
     public final class SwvModConst {
@@ -46,6 +46,8 @@ public final class Constants {
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
                             turnConversion = 2 * Math.PI / turnGearing;
+        static final double velI = 0.0001;
     }
+    static final int nominalVoltage = 12;
     
 }
