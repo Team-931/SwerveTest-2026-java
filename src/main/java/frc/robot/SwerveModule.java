@@ -72,6 +72,7 @@ public class SwerveModule {
     config.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
                      .p(SwvModConst.velP / SwvModConst.driveConversion * 60, SwvModConst.velSlot)
                      .i(SwvModConst.velI, SwvModConst.velSlot)
+                     //.iZone(20 * SwvModConst.velI, SwvModConst.velSlot)
                      .positionWrappingEnabled(false)
                      .feedForward.kV(SwvModConst.DrvFF, SwvModConst.velSlot);
 
@@ -80,10 +81,13 @@ public class SwerveModule {
     config.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
     config.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot)
+                     .i(0.01, SwvModConst.posSlot)
+                     .iZone(.14, SwvModConst.posSlot)
                      .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
                      .i(0, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
-                     .positionWrappingInputRange(-Math.PI/2, Math.PI/2); // Todo:  check this
+                     .positionWrappingInputRange(-Math.PI/2, Math.PI/2)
+                     .feedForward.kV(0, SwvModConst.velSlot); // Todo:  check this
 
     m_turningMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

@@ -19,8 +19,9 @@ public class Drivetrain {
   private final  AHRS m_gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
   public Drivetrain() {
-    m_gyro.reset();
-    //m_gyro.setAngleAdjustment(DrvConst.IMUAngle);
+    m_gyro.reset();//TODO: Is this line needed?
+    while(m_gyro.isCalibrating());
+    zeroYaw();
   }
 
   void zeroYaw() {

@@ -36,10 +36,16 @@ public class Robot extends TimedRobot {
     driveWithJoystick(useField);
   }
 
+  private boolean firstTimeDisabled = true;
+
   @Override
-  public void driverStationConnected() {
-    m_swerve.zeroYaw();
-    showFieldCtr();
+  public void disabledInit() {
+    if (firstTimeDisabled)
+    {
+      firstTimeDisabled = false;
+      //m_swerve.zeroYaw();//TODO: check if need
+      showFieldCtr();
+    }
   }
 
   private void showFieldCtr() {

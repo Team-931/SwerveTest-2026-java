@@ -40,7 +40,7 @@ public final class Constants {
         final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         final static double velP = .0001;
         static final double kWheelRadius = 0.034; //meter
-        static final double freeVeloc = 5.3;
+        static final double freeVeloc = 5.31;
          //TODO: tune better
         static final double DrvFF = 1 / freeVeloc; // Officially Volt /(m/s), conjectured: proportional output / (m/s)
         static final int turnGearing = 28, driveGearing = 4;
