@@ -36,7 +36,7 @@ public final class Constants {
     }
     public final class SwvModConst {
         final static ClosedLoopSlot posSlot = ClosedLoopSlot.kSlot0;
-        final static double posP = .1;
+        final static double posP = 1;
         final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         final static double velP = .0001;
         static final double kWheelRadius = 0.034; //meter
@@ -46,7 +46,7 @@ public final class Constants {
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
                             turnConversion = 2 * Math.PI / turnGearing;
-        static final double velI = 0.0001;
+        static final double velI = 0.001, velIZone = .05;
     }
     static final int nominalVoltage = 12;
     

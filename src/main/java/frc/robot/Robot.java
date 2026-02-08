@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
       return;
     }
     if(m_controller.getYButton()) {
-      m_swerve.drive(1, 0, 0, false, getPeriod());
+      m_swerve.drive(-1, 0, 0, false, getPeriod());
       return;
     }
     // TODO: have max speed modifiable

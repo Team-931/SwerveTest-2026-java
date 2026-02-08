@@ -64,32 +64,32 @@ public class SwerveModule {
     m_turningPIDController =
       m_turningMotor.getClosedLoopController();
 
-    SparkMaxConfig config = new SparkMaxConfig();
+    SparkMaxConfig configDrv = new SparkMaxConfig(),
+                  configTrn = new SparkMaxConfig();
       // TODO: check voltage comp
-    config.voltageCompensation(Constants.nominalVoltage);      
-    config.encoder.positionConversionFactor(SwvModConst.driveConversion)       // New unit: meters
+    configDrv.voltageCompensation(Constants.nominalVoltage);      
+    configTrn.voltageCompensation(Constants.nominalVoltage);      
+    configDrv.encoder.positionConversionFactor(SwvModConst.driveConversion)       // New unit: meters
                   .velocityConversionFactor(SwvModConst.driveConversion / 60); // New unit: meters / second
-    config.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
-                     .p(SwvModConst.velP / SwvModConst.driveConversion * 60, SwvModConst.velSlot)
-                     .i(SwvModConst.velI, SwvModConst.velSlot)
-                     //.iZone(20 * SwvModConst.velI, SwvModConst.velSlot)
-                     .positionWrappingEnabled(false)
-                     .feedForward.kV(SwvModConst.DrvFF, SwvModConst.velSlot);
+    configDrv.closedLoop.p(SwvModConst.posP / SwvModConst.driveConversion, SwvModConst.posSlot)
+                     //.p(SwvModConst.velP / SwvModConst.driveConversion * 60, SwvModConst.velSlot)
+                     .i(SwvModConst.velI, SwvModConst.velSlot) // This compensates for inaccuracy in feed-forward
+                     .iZone(SwvModConst.velIZone, SwvModConst.velSlot) // When we change veloc. by more than this let feed-forward do the work
+                     .feedForward.kV(SwvModConst.DrvFF, SwvModConst.velSlot); // about enough to reach the right veloc. without feed-back
 
-    m_driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_driveMotor.configure(configDrv, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    config.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
+    configTrn.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
-    config.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot)
-                     .i(0.01, SwvModConst.posSlot)
-                     .iZone(.14, SwvModConst.posSlot)
+    configTrn.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot) // main control for angle
+                     .i(0.01, SwvModConst.posSlot) // overcome resistance at small error
+                     .iZone(.04, SwvModConst.posSlot) // ignore .i for larger error
                      .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
-                     .i(0, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
                      .positionWrappingInputRange(-Math.PI/2, Math.PI/2)
                      .feedForward.kV(0, SwvModConst.velSlot); // Todo:  check this
 
-    m_turningMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_turningMotor.configure(configTrn, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
