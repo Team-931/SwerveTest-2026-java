@@ -138,6 +138,12 @@ public class SwerveModule {
     m_driveMotor.set(-1);
   }
 
+  void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
+    double range = yes ? Math.PI: Math.PI/2;
+    var config = new SparkMaxConfig(); config.closedLoop.positionWrappingInputRange(-range, range);
+    m_turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
   private double X;//moved out of setVel only for reporting purpose
 
   //private Translation2d velGoal = new Translation2d();

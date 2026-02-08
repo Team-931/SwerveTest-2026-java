@@ -68,6 +68,12 @@ void fullSpeed() {
   m_frontRight.fullSpeed();
 }
 
+  void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
+    m_backLeft.doAngle360(yes);
+    m_backRight.doAngle360(yes);
+    m_frontLeft.doAngle360(yes);
+    m_frontRight.doAngle360(yes);
+  }
    void report() {
     m_frontLeft.report("FL");
     m_frontRight.report("FR");

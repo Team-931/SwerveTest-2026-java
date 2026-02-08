@@ -52,6 +52,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Field Centered", useField);
   }
   private void driveWithJoystick(boolean fieldRelative) {
+    if(m_controller.getRightBumperButtonPressed()) m_swerve.doAngle360(true); //TODO: don't need after abs encoders are in
+    if(m_controller.getRightBumperButtonReleased()) m_swerve.doAngle360(false); //TODO: don't need after abs encoders are in,
     if(m_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
     if(m_controller.getBButtonPressed()) {
       useField ^= true;
