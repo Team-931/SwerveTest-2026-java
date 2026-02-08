@@ -38,6 +38,14 @@ Now see if we do approach the fixed point:
                             =                                                   *           
     [sumError - sumErrorFix]      [ - kP * period * maxSpeed   | (1 - kI * period * maxSpeed)]           [sumError - sumErrorFix]
 
-I assert that if both solutions of the following equation have abs(s) < 1 it will converge. The smaller the solutions the faster.
-    x*x - (1 - kI * period * maxSpeed - kP * maxSpeed) * x  - kP * maxSpeed = 0
+I assert that if both solutions of the following equation have abs(x) < 1 it will converge. The smaller the solutions the faster.
+    E := x*x - (1 - kI * period * maxSpeed - kP * maxSpeed) * x  - kP * maxSpeed = 0
     x*x - a * x - b = 0 // naming the coefficients
+
+Assuming kP >= 0, it is enough to require E > 0 for x = +1 and -1:
+    1  - (1 - kI * period * maxSpeed - kP * maxSpeed) - kP * maxSpeed > 0
+    1  + (1 - kI * period * maxSpeed - kP * maxSpeed) - kP * maxSpeed > 0
+    kI * period * maxSpeed >0
+    => kI > 0
+    2 - kI * period * maxSpeed - 2 * kP * maxSpeed > 0
+    => kI < 2 * (1 - kP * maxSpeed) / period / maxSpeed
