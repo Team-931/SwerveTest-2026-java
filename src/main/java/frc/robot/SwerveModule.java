@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -32,6 +33,7 @@ public class SwerveModule {
 
   private final RelativeEncoder m_driveEncoder;
   private final RelativeEncoder m_turningEncoder;
+  private final AbsoluteEncoder absoluteEncoder;
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final SparkClosedLoopController m_drivePIDController;
@@ -59,6 +61,7 @@ public class SwerveModule {
 
     m_driveEncoder = m_driveMotor.getEncoder();
     m_turningEncoder = m_turningMotor.getEncoder();
+    absoluteEncoder = m_turningMotor.getAbsoluteEncoder();
 
     m_drivePIDController = m_driveMotor.getClosedLoopController();
     m_turningPIDController =
@@ -81,6 +84,8 @@ public class SwerveModule {
 
     configTrn.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
+    configTrn.absoluteEncoder.positionConversionFactor(SwvModConst.turnConversion /3.3)       // New unit: radians
+                  .velocityConversionFactor(SwvModConst.turnConversion / 60 / 3.3); // New unit: radians / second
     configTrn.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot) // main control for angle
                      .i(0.01, SwvModConst.posSlot) // overcome resistance at small error
                      .iZone(.04, SwvModConst.posSlot) // ignore .i for larger error
@@ -132,13 +137,17 @@ public class SwerveModule {
     SmartDashboard.putNumber(key + " angle", turnAngle().getDegrees());
     SmartDashboard.putNumber(key + " speed", m_driveEncoder.getVelocity());
     SmartDashboard.putNumber(key + " setpoint", X);
+    SmartDashboard.putNumber(key + "abs. angle", absoluteEncoder.getPosition());
   }
 
   void fullSpeed() {
     m_driveMotor.set(-1);
   }
+  
+private boolean noLaborSaving = false;
 
   void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
+    noLaborSaving = yes;
     double range = yes ? Math.PI: Math.PI/2;
     var config = new SparkMaxConfig(); config.closedLoop.positionWrappingInputRange(-range, range);
     m_turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -156,7 +165,7 @@ public class SwerveModule {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);
       m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
     }
-    else {
+    else if(noLaborSaving || translation2d.getSquaredNorm() >= (1e-6)) {// square of 1 mm / sec
       double angle = Math.atan2(translation2d.getY(), translation2d.getX());
       m_turningPIDController.setSetpoint(angle, ControlType.kPosition, SwvModConst.posSlot);
     }

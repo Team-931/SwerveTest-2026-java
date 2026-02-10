@@ -36,7 +36,7 @@ public final class Constants {
     }
     public final class SwvModConst {
         final static ClosedLoopSlot posSlot = ClosedLoopSlot.kSlot0;
-        final static double posP = 1;
+        final static double posP = 2. / 3;
         final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         final static double velP = .0001;
         static final double kWheelRadius = 0.034; //meter
