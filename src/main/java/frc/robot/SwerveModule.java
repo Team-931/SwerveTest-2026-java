@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SwvModConst;
+import frc.robot.Constants.DrvConst.Setup;
 
 public class SwerveModule {
   /* 
@@ -28,44 +29,38 @@ public class SwerveModule {
   private static final double kModuleMaxAngularAcceleration =
       2 * Math.PI; // radians per second squared
  */
-  private final SparkMax m_driveMotor;
-  private final SparkMax m_turningMotor;
+  private final Setup info;
+  private final double absOffset;
+  private final SparkMax driveMotor;
+  private final SparkMax turningMotor;
 
-  private final RelativeEncoder m_driveEncoder;
-  private final RelativeEncoder m_turningEncoder;
+  private final RelativeEncoder driveEncoder;
+  private final RelativeEncoder turningEncoder;
   private final AbsoluteEncoder absoluteEncoder;
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  private final SparkClosedLoopController m_drivePIDController;
+  
+  private final SparkClosedLoopController drivePIDController;
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  private final SparkClosedLoopController m_turningPIDController;
+  
+  private final SparkClosedLoopController turningPIDController;
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  /* private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
-  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(1, 0.5);
- */
+
   /**
-   * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
-   *
-   * @param driveMotorChannel PWM output for the drive motor.
-   * @param turningMotorChannel PWM output for the turning motor.
-   * @param reverse True if drive is opposed to its angle
-   */
-  public SwerveModule(
-      int driveMotorChannel,
-      int turningMotorChannel
-      ) {
-    m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
-    m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
+   * Construct a SwerveModule from a Setup class
+   */  
+SwerveModule (Setup setup){
+    info = setup;
+    driveMotor = new SparkMax(setup.driveId, MotorType.kBrushless);
+    turningMotor = new SparkMax(setup.turnId, MotorType.kBrushless);
+    absOffset = setup.absOffset;
 
-    m_driveEncoder = m_driveMotor.getEncoder();
-    m_turningEncoder = m_turningMotor.getEncoder();
-    absoluteEncoder = m_turningMotor.getAbsoluteEncoder();
+    driveEncoder = driveMotor.getEncoder();
+    turningEncoder = turningMotor.getEncoder();
+    absoluteEncoder = turningMotor.getAbsoluteEncoder();
 
-    m_drivePIDController = m_driveMotor.getClosedLoopController();
-    m_turningPIDController =
-      m_turningMotor.getClosedLoopController();
+    drivePIDController = driveMotor.getClosedLoopController();
+    turningPIDController =
+      turningMotor.getClosedLoopController();
 
     SparkMaxConfig configDrv = new SparkMaxConfig(),
                   configTrn = new SparkMaxConfig();
@@ -80,7 +75,7 @@ public class SwerveModule {
                      .iZone(SwvModConst.velIZone, SwvModConst.velSlot) // When we change veloc. by more than this let feed-forward do the work
                      .feedForward.kV(SwvModConst.DrvFF, SwvModConst.velSlot); // about enough to reach the right veloc. without feed-back
 
-    m_driveMotor.configure(configDrv, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    driveMotor.configure(configDrv, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     configTrn.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
@@ -94,24 +89,17 @@ public class SwerveModule {
                      .positionWrappingInputRange(-Math.PI/2, Math.PI/2)
                      .feedForward.kV(0, SwvModConst.velSlot); // Todo:  check this
 
-    m_turningMotor.configure(configTrn, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    turningMotor.configure(configTrn, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+}
 
-    // Set the distance per pulse for the drive encoder. We can simply use the
-    // distance traveled for one rotation of the wheel divided by the encoder
-    // resolution.
-    //m_driveEncoder.setDistancePerPulse(2 * Math.PI * kWheelRadius / kEncoderResolution);
-
-    // Set the distance (in this case, angle) in radians per pulse for the turning encoder.
-    // This is the the angle through an entire rotation (2 * pi) divided by the
-    // encoder resolution.
-    //m_turningEncoder.setDistancePerPulse(2 * Math.PI / kEncoderResolution);
-
-    // Limit the PID Controller's input range between -pi and pi and set the input
-    // to be continuous.
-    //m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
-  }
-
-  private final Rotation2d turnAngle() {return new Rotation2d(m_turningEncoder.getPosition());}
+  /**
+   * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
+   *
+   * @param driveMotorChannel PWM output for the drive motor.
+   * @param turningMotorChannel PWM output for the turning motor.
+   */
+ 
+  private final Rotation2d turnAngle() {return new Rotation2d(turningEncoder.getPosition());}
 
   /**
    * Returns the current state of the module.
@@ -120,7 +108,7 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(
-        m_driveEncoder.getVelocity(), turnAngle());
+        driveEncoder.getVelocity(), turnAngle());
   }
 
   /**
@@ -130,18 +118,18 @@ public class SwerveModule {
    */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-        m_driveEncoder.getPosition(), turnAngle());
+        driveEncoder.getPosition(), turnAngle());
   }
 
   void report(String key) {
     SmartDashboard.putNumber(key + " angle", turnAngle().getDegrees());
-    SmartDashboard.putNumber(key + " speed", m_driveEncoder.getVelocity());
+    SmartDashboard.putNumber(key + " speed", driveEncoder.getVelocity());
     SmartDashboard.putNumber(key + " setpoint", X);
     SmartDashboard.putNumber(key + "abs. angle", absoluteEncoder.getPosition());
   }
 
   void fullSpeed() {
-    m_driveMotor.set(-1);
+    driveMotor.set(-1);
   }
   
 private boolean noLaborSaving = false;
@@ -150,7 +138,7 @@ private boolean noLaborSaving = false;
     noLaborSaving = yes;
     double range = yes ? Math.PI: Math.PI/2;
     var config = new SparkMaxConfig(); config.closedLoop.positionWrappingInputRange(-range, range);
-    m_turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   private double X;//moved out of setVel only for reporting purpose
@@ -159,15 +147,15 @@ private boolean noLaborSaving = false;
   public void setVel(Translation2d translation2d, double period) {
     Translation2d velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();//TODO: make X local again
-    m_drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//Done: check conversion factors
+    drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//Done: check conversion factors
 
     if (Robot.useVelCtrl) {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);
-      m_turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
+      turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
     }
     else if(noLaborSaving || translation2d.getSquaredNorm() >= (1e-6)) {// square of 1 mm / sec
       double angle = Math.atan2(translation2d.getY(), translation2d.getX());
-      m_turningPIDController.setSetpoint(angle, ControlType.kPosition, SwvModConst.posSlot);
+      turningPIDController.setSetpoint(angle, ControlType.kPosition, SwvModConst.posSlot);
     }
   }
  

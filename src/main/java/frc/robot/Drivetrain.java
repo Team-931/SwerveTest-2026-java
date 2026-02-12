@@ -11,21 +11,21 @@ import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
-  private final SwerveModule m_frontLeft = new SwerveModule(DrvConst.FLDrv, DrvConst.FLTrn);
-  private final SwerveModule m_frontRight = new SwerveModule(DrvConst.FRDrv, DrvConst.FRTrn);
-  private final SwerveModule m_backLeft = new SwerveModule(DrvConst.BLDrv, DrvConst.BLTrn);
-  private final SwerveModule m_backRight = new SwerveModule(DrvConst.BRDrv, DrvConst.BRTrn);
+  private final SwerveModule frontLeft = new SwerveModule(DrvConst.frontLeft);
+  private final SwerveModule frontRight = new SwerveModule(DrvConst.frontRight);
+  private final SwerveModule backLeft = new SwerveModule(DrvConst.backLeft);
+  private final SwerveModule backRight = new SwerveModule(DrvConst.backRight);
 
-  private final  AHRS m_gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
+  private final  AHRS gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
   public Drivetrain() {
-    m_gyro.reset();//TODO: Is this line needed?
-    while(m_gyro.isCalibrating());
+    gyro.reset();//TODO: Is this line needed?
+    while(gyro.isCalibrating());
     zeroYaw();
   }
 
   void zeroYaw() {
-    m_gyro.zeroYaw();
+    gyro.zeroYaw();
   }
 
   /**
@@ -48,48 +48,48 @@ public class Drivetrain {
   }
 
   if(fieldRelative) {
-    BaseVel = BaseVel.rotateBy(m_gyro.getRotation2d().unaryMinus());
+    BaseVel = BaseVel.rotateBy(gyro.getRotation2d().unaryMinus());
   }
-  FLVel = BaseVel.plus(DrvConst.m_frontLeftClW.times(rot));
-  BLVel = BaseVel.plus(DrvConst.m_backLeftClW.times(rot));
-  FRVel = BaseVel.plus(DrvConst.m_frontRightClW.times(rot));
-  BRVel = BaseVel.plus(DrvConst.m_backRightClW.times(rot));
+  FLVel = BaseVel.plus(DrvConst.frontLeftClW.times(rot));
+  BLVel = BaseVel.plus(DrvConst.backLeftClW.times(rot));
+  FRVel = BaseVel.plus(DrvConst.frontRightClW.times(rot));
+  BRVel = BaseVel.plus(DrvConst.backRightClW.times(rot));
   
-  m_frontLeft.setVel(FLVel, periodSeconds);
-  m_backLeft.setVel(BLVel, periodSeconds);
-  m_frontRight.setVel(FRVel, periodSeconds);
-  m_backRight.setVel(BRVel, periodSeconds);
+  frontLeft.setVel(FLVel, periodSeconds);
+  backLeft.setVel(BLVel, periodSeconds);
+  frontRight.setVel(FRVel, periodSeconds);
+  backRight.setVel(BRVel, periodSeconds);
 }
 
 void fullSpeed() {
-  m_backLeft.fullSpeed();
-  m_backRight.fullSpeed();
-  m_frontLeft.fullSpeed();
-  m_frontRight.fullSpeed();
+  backLeft.fullSpeed();
+  backRight.fullSpeed();
+  frontLeft.fullSpeed();
+  frontRight.fullSpeed();
 }
 
   void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
-    m_backLeft.doAngle360(yes);
-    m_backRight.doAngle360(yes);
-    m_frontLeft.doAngle360(yes);
-    m_frontRight.doAngle360(yes);
+    backLeft.doAngle360(yes);
+    backRight.doAngle360(yes);
+    frontLeft.doAngle360(yes);
+    frontRight.doAngle360(yes);
   }
    void report() {
-    m_frontLeft.report("FL");
-    m_frontRight.report("FR");
-    m_backLeft.report("BL");
-    m_backRight.report("BR");
+    frontLeft.report("FL");
+    frontRight.report("FR");
+    backLeft.report("BL");
+    backRight.report("BR");
   }
 
   /** Updates the field relative position of the robot. */
 /*   public void updateOdometry() {
     m_odometry.update(
-        m_gyro.getRotation2d(),
+        gyro.getRotation2d(),
         new SwerveModulePosition[] {
-          m_frontLeft.getPosition(),
-          m_frontRight.getPosition(),
-          m_backLeft.getPosition(),
-          m_backRight.getPosition()
+          frontLeft.getPosition(),
+          frontRight.getPosition(),
+          backLeft.getPosition(),
+          backRight.getPosition()
         });
   }
  */}
