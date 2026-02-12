@@ -14,12 +14,12 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-//import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import frc.robot.Constants.SwvModConst;
 import frc.robot.Constants.DrvConst.Setup;
 
@@ -31,6 +31,7 @@ public class SwerveModule {
  */
   private final Setup info;
   private final double absOffset;
+  private double relOffset;
   private final SparkMax driveMotor;
   private final SparkMax turningMotor;
 
@@ -79,17 +80,18 @@ SwerveModule (Setup setup){
 
     configTrn.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
-    configTrn.absoluteEncoder.positionConversionFactor(SwvModConst.turnConversion /3.3)       // New unit: radians
-                  .velocityConversionFactor(SwvModConst.turnConversion / 60 / 3.3); // New unit: radians / second
+    configTrn.absoluteEncoder.positionConversionFactor(1. /3.3)       // New unit: radians
+                  .velocityConversionFactor(1. / 60 / 3.3); // New unit: radians / second
     configTrn.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot) // main control for angle
                      .i(SwvModConst.turnI, SwvModConst.posSlot) // overcome resistance at small error
                      .iZone(SwvModConst.turnIZone, SwvModConst.posSlot) // ignore .i for larger error
                      .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
-                     .positionWrappingInputRange(-Math.PI/2, Math.PI/2)
+                     .positionWrappingInputRange(-.25, .25)
                      .feedForward.kV(0, SwvModConst.velSlot); // Todo:  check this
 
     turningMotor.configure(configTrn, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    setRelOffset();
 }
 
   /**
@@ -99,7 +101,17 @@ SwerveModule (Setup setup){
    * @param turningMotorChannel PWM output for the turning motor.
    */
  
-  private final Rotation2d turnAngle() {return new Rotation2d(turningEncoder.getPosition());}
+  private final void setRelOffset() {
+    relOffset = absoluteEncoder.getPosition() - absOffset - turningEncoder.getPosition();
+   }
+
+  private final double turnRots() {
+    return turningEncoder.getPosition() + relOffset;
+  }
+  
+  private final Rotation2d turnAngle() {
+    return Rotation2d.fromRotations(turnRots());
+    }
 
   /**
    * Returns the current state of the module.
@@ -122,21 +134,21 @@ SwerveModule (Setup setup){
   }
 
   void report(String key) {
-    SmartDashboard.putNumber(key + " angle", turnAngle().getDegrees());
+    SmartDashboard.putNumber(key + " angle", turnRots());
     SmartDashboard.putNumber(key + " speed", driveEncoder.getVelocity());
     SmartDashboard.putNumber(key + " setpoint", X);
     SmartDashboard.putNumber(key + "abs. angle", absoluteEncoder.getPosition());
   }
 
   void fullSpeed() {
-    driveMotor.set(-1);
+    driveMotor.set(1);
   }
   
 private boolean noLaborSaving = false;
 
   void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
     noLaborSaving = yes;
-    double range = yes ? Math.PI: Math.PI/2;
+    double range = yes ? .5: .25;
     var config = new SparkMaxConfig(); config.closedLoop.positionWrappingInputRange(-range, range);
     turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
@@ -154,7 +166,7 @@ private boolean noLaborSaving = false;
       turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
     }
     else if(noLaborSaving || translation2d.getSquaredNorm() >= (1e-6)) {// square of 1 mm / sec
-      double angle = Math.atan2(translation2d.getY(), translation2d.getX());
+      double angle = Math.atan2(translation2d.getY(), translation2d.getX()) / 2 / Math.PI;
       turningPIDController.setSetpoint(angle, ControlType.kPosition, SwvModConst.posSlot);
     }
   }

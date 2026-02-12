@@ -10,7 +10,7 @@ final class Constants {
   
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed/* or SwvModConst.freeVeloc */; // 3 meters per second
-         static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
+         static final double kMaxAngularSpeed = .5; // 1/2 rotation per second
          static final class Setup {
             final int driveId, turnId;
             final double absOffset;
@@ -56,7 +56,7 @@ final class Constants {
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
         // TODO Decide whether turn unit should be radians as currently, or rotations.
-                            turnConversion = 2 * Math.PI / turnGearing;
+                            turnConversion = 1. / turnGearing;
         static final double velI = 0.001, velIZone = .05;
         static final double turnI = 0.01, turnIZone = .04;
     }
