@@ -87,8 +87,8 @@ public class SwerveModule {
     configTrn.absoluteEncoder.positionConversionFactor(SwvModConst.turnConversion /3.3)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60 / 3.3); // New unit: radians / second
     configTrn.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot) // main control for angle
-                     .i(0.01, SwvModConst.posSlot) // overcome resistance at small error
-                     .iZone(.04, SwvModConst.posSlot) // ignore .i for larger error
+                     .i(SwvModConst.turnI, SwvModConst.posSlot) // overcome resistance at small error
+                     .iZone(SwvModConst.turnIZone, SwvModConst.posSlot) // ignore .i for larger error
                      .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
                      .positionWrappingInputRange(-Math.PI/2, Math.PI/2)
