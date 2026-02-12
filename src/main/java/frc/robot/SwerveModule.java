@@ -133,11 +133,11 @@ SwerveModule (Setup setup){
         driveEncoder.getPosition(), turnAngle());
   }
 
-  void report(String key) {
-    SmartDashboard.putNumber(key + " angle", turnRots());
-    SmartDashboard.putNumber(key + " speed", driveEncoder.getVelocity());
-    SmartDashboard.putNumber(key + " setpoint", X);
-    SmartDashboard.putNumber(key + "abs. angle", absoluteEncoder.getPosition());
+  void report() {
+    SmartDashboard.putNumber(info.name + " angle", turnRots());
+    SmartDashboard.putNumber(info.name + " speed", driveEncoder.getVelocity());
+    SmartDashboard.putNumber(info.name + " setpoint", X);
+    SmartDashboard.putNumber(info.name + " abs. angle", absoluteEncoder.getPosition());
   }
 
   void fullSpeed() {

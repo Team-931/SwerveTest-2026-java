@@ -75,10 +75,10 @@ void fullSpeed() {
     frontRight.doAngle360(yes);
   }
    void report() {
-    frontLeft.report("FL");
-    frontRight.report("FR");
-    backLeft.report("BL");
-    backRight.report("BR");
+    frontLeft.report();
+    frontRight.report();
+    backLeft.report();
+    backRight.report();
   }
 
   /** Updates the field relative position of the robot. */
