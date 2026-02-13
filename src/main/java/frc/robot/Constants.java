@@ -15,17 +15,19 @@ final class Constants {
             final int driveId, turnId;
             final double absOffset;
             final String name;
-            Setup(int drv, int trn, double offset, String nam) {
+            Setup(int drv, int trn, double offset, String nam3) {
                 driveId = drv;
                 turnId = trn;
                 absOffset = offset;
-                name = nam;
+                name = nam3;
             }
          }
-        static Setup frontLeft = new Setup(3, 5, .94, "FL"),
-                     frontRight = new Setup(9, 6, 0.19, "FR"),
-                     backLeft = new Setup(2, 4, 0.69, "BL"),
-                     backRight = new Setup(8, 7, .44, "BR");
+
+         static final double baseOffset = .19;
+         static Setup frontLeft = new Setup(3, 5, baseOffset + .75, "FL"),
+                     frontRight = new Setup(9, 6, baseOffset, "FR"),
+                     backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
+                     backRight = new Setup(8, 7, baseOffset + .25, "BR");
         
          static final Translation2d frontLeftLocation = new Translation2d(0.381, 0.381); // unit: meters; x is forward dist from center, y is leftward
          static final Translation2d frontRightLocation = new Translation2d(0.381, -0.381);
