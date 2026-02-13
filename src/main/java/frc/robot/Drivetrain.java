@@ -28,6 +28,13 @@ public class Drivetrain {
     gyro.zeroYaw();
   }
 
+  void setRelOffset() {
+    frontLeft.setRelOffset();
+    frontRight.setRelOffset();
+    backLeft.setRelOffset();
+    backRight.setRelOffset();
+  }
+
   /**
    * Method to drive the robot using joystick info.
    *

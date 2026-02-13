@@ -47,6 +47,7 @@ public class Robot extends TimedRobot {
       showFieldCtr();
     }
     LimelightHelpers.setLEDMode_ForceOff("");
+    m_swerve.setRelOffset();
   }
 
   private void showFieldCtr() {

@@ -7,8 +7,8 @@ package frc.robot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkAnalogSensor;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -37,7 +37,7 @@ public class SwerveModule {
 
   private final RelativeEncoder driveEncoder;
   private final RelativeEncoder turningEncoder;
-  private final AbsoluteEncoder absoluteEncoder;
+  private final SparkAnalogSensor absoluteEncoder;
 
   
   private final SparkClosedLoopController drivePIDController;
@@ -57,7 +57,7 @@ SwerveModule (Setup setup){
 
     driveEncoder = driveMotor.getEncoder();
     turningEncoder = turningMotor.getEncoder();
-    absoluteEncoder = turningMotor.getAbsoluteEncoder();
+    absoluteEncoder = turningMotor.getAnalog();
 
     drivePIDController = driveMotor.getClosedLoopController();
     turningPIDController =
@@ -80,8 +80,8 @@ SwerveModule (Setup setup){
 
     configTrn.encoder.positionConversionFactor(SwvModConst.turnConversion)       // New unit: radians
                   .velocityConversionFactor(SwvModConst.turnConversion / 60); // New unit: radians / second
-    configTrn.absoluteEncoder.positionConversionFactor(1. /3.3)       // New unit: radians
-                  .velocityConversionFactor(1. / 60 / 3.3); // New unit: radians / second
+    configTrn.analogSensor.positionConversionFactor(1 / 3.35)       // New unit: rotations not radians
+                  .velocityConversionFactor(1 / 3.35 / 60); // New unit: rotations not radians / second
     configTrn.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot) // main control for angle
                      .i(SwvModConst.turnI, SwvModConst.posSlot) // overcome resistance at small error
                      .iZone(SwvModConst.turnIZone, SwvModConst.posSlot) // ignore .i for larger error
@@ -101,7 +101,7 @@ SwerveModule (Setup setup){
    * @param turningMotorChannel PWM output for the turning motor.
    */
  
-  private final void setRelOffset() {
+   final void setRelOffset() {
     relOffset = absoluteEncoder.getPosition() - absOffset - turningEncoder.getPosition();
    }
 
@@ -137,7 +137,8 @@ SwerveModule (Setup setup){
     SmartDashboard.putNumber(info.name + " angle", turnRots());
     SmartDashboard.putNumber(info.name + " speed", driveEncoder.getVelocity());
     SmartDashboard.putNumber(info.name + " setpoint", X);
-    SmartDashboard.putNumber(info.name + " abs. angle", absoluteEncoder.getPosition());
+    SmartDashboard.putNumber(info.name + " abs. angle", absoluteEncoder.getPosition() - absOffset);
+    SmartDashboard.putNumber(info.name + " angle diff", absoluteEncoder.getPosition() - absOffset - turnRots());
   }
 
   void fullSpeed() {
@@ -167,7 +168,7 @@ private boolean noLaborSaving = false;
     }
     else if(noLaborSaving || translation2d.getSquaredNorm() >= (1e-6)) {// square of 1 mm / sec
       double angle = Math.atan2(translation2d.getY(), translation2d.getX()) / 2 / Math.PI;
-      turningPIDController.setSetpoint(angle, ControlType.kPosition, SwvModConst.posSlot);
+      turningPIDController.setSetpoint(angle - relOffset, ControlType.kPosition, SwvModConst.posSlot);
     }
   }
  
