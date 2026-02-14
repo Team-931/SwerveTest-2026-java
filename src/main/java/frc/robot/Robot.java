@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DrvConst;
@@ -22,10 +23,16 @@ public class Robot extends TimedRobot {
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
-
+  private final Timer autoTimer = new Timer();
+  @Override
+  public void autonomousInit() {
+    autoTimer.restart();
+  }
   @Override
   public void autonomousPeriodic() {
-    driveWithJoystick(false);
+    double xSpeed = (autoTimer.get() < 2) ? 1 : 0; //Drive fwd 1 m/s for 2 s
+    m_swerve.drive(xSpeed, 0, 0, useField, getPeriod());
+    //driveWithJoystick(false);
     //m_swerve.updateOdometry();
   }
 
@@ -56,6 +63,7 @@ public class Robot extends TimedRobot {
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getRightBumperButtonPressed()) m_swerve.doAngle360(true); //TODO: don't need after abs encoders are in
     if(drive_controller.getRightBumperButtonReleased()) m_swerve.doAngle360(false); //TODO: don't need after abs encoders are in,
+    if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture(getPeriod());
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
     if(drive_controller.getBButtonPressed()) {
       useField ^= true;

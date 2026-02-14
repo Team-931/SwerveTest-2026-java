@@ -23,7 +23,7 @@ final class Constants {
             }
          }
 
-         static final double baseOffset = .19;
+         static final double baseOffset = .1875; // .18611111111111111111111111111111
          static Setup frontLeft = new Setup(3, 5, baseOffset + .75, "FL"),
                      frontRight = new Setup(9, 6, baseOffset, "FR"),
                      backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
@@ -48,10 +48,10 @@ final class Constants {
     }
     static final class SwvModConst {
         final static ClosedLoopSlot posSlot = ClosedLoopSlot.kSlot0;
-        final static double posP = 2. / 3;
+        final static double posP = .1;
         final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         final static double velP = .0001;
-        static final double kWheelRadius = 0.034; //meter
+        static final double kWheelRadius = .05931 / 2; /* 0.034 */; //meter //diameter: 2.335 in, 59.31 mm
         static final double freeVeloc = 5.31;
          //TODO: tune better
         static final double DrvFF = 1 / freeVeloc; // Officially Volt /(m/s), conjectured: proportional output / (m/s)
@@ -60,7 +60,9 @@ final class Constants {
         // TODO Decide whether turn unit should be radians as currently, or rotations.
                             turnConversion = 1. / turnGearing;
         static final double velI = 0.001, velIZone = .05;
-        static final double turnI = 0.01, turnIZone = .04;
+        static final double turnI = 0.003 * posP, turnIZone = 1. / 256;
+        static final double minSpd = .001, // mm / s
+                            minSpdSq = minSpd*minSpd;
     }
     static final int nominalVoltage = 12;
     

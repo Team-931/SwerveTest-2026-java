@@ -83,7 +83,7 @@ SwerveModule (Setup setup){
     configTrn.analogSensor.positionConversionFactor(1 / 3.35)       // New unit: rotations not radians
                   .velocityConversionFactor(1 / 3.35 / 60); // New unit: rotations not radians / second
     configTrn.closedLoop.p(SwvModConst.posP / SwvModConst.turnConversion, SwvModConst.posSlot) // main control for angle
-                     .i(SwvModConst.turnI, SwvModConst.posSlot) // overcome resistance at small error
+                     .i(SwvModConst.turnI / SwvModConst.turnConversion, SwvModConst.posSlot) // overcome resistance at small error
                      .iZone(SwvModConst.turnIZone, SwvModConst.posSlot) // ignore .i for larger error
                      .p(SwvModConst.velP / SwvModConst.turnConversion * 60, SwvModConst.velSlot)
                      .positionWrappingEnabled(true)
@@ -107,6 +107,10 @@ SwerveModule (Setup setup){
 
   private final double turnRots() {
     return turningEncoder.getPosition() + relOffset;
+  }
+
+  final void setTurnRot(double angle) {
+    turningPIDController.setSetpoint(angle - relOffset, ControlType.kPosition, SwvModConst.posSlot);
   }
   
   private final Rotation2d turnAngle() {
@@ -166,9 +170,9 @@ private boolean noLaborSaving = false;
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);
       turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
     }
-    else if(noLaborSaving || translation2d.getSquaredNorm() >= (1e-6)) {// square of 1 mm / sec
+    else if(noLaborSaving || translation2d.getSquaredNorm() >= SwvModConst.minSpdSq) {
       double angle = Math.atan2(translation2d.getY(), translation2d.getX()) / 2 / Math.PI;
-      turningPIDController.setSetpoint(angle - relOffset, ControlType.kPosition, SwvModConst.posSlot);
+      setTurnRot(angle);
     }
   }
  

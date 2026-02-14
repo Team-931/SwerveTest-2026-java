@@ -68,6 +68,17 @@ public class Drivetrain {
   backRight.setVel(BRVel, periodSeconds);
 }
 
+void setXPosture(double periodSeconds) {
+  Translation2d FLVel = DrvConst.frontLeftLocation.div(128),
+                BLVel = DrvConst.backLeftLocation.div(128), 
+                FRVel = DrvConst.frontRightLocation.div(128), 
+                BRVel = DrvConst.backRightLocation.div(128);
+  frontLeft.setVel(FLVel, periodSeconds);
+  backLeft.setVel(BLVel, periodSeconds);
+  frontRight.setVel(FRVel, periodSeconds);
+  backRight.setVel(BRVel, periodSeconds);
+}
+
 void fullSpeed() {
   backLeft.fullSpeed();
   backRight.fullSpeed();
