@@ -52,12 +52,12 @@ final class Constants {
         final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         final static double velP = .0001;
         static final double kWheelRadius = .05931 / 2; /* 0.034 */; //meter //diameter: 2.335 in, 59.31 mm
-        static final double freeVeloc = 5.31;
+        static final double freeVeloc = 4.63; //5.31;
          //TODO: tune better
         static final double DrvFF = 1 / freeVeloc; // Officially Volt /(m/s), conjectured: proportional output / (m/s)
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
-        // TODO Decide whether turn unit should be radians as currently, or rotations.
+        // TODO Decide whether turn unit should be radians, or rotations as currently.
                             turnConversion = 1. / turnGearing;
         static final double velI = 0.001, velIZone = .05;
         static final double turnI = 0.003 * posP, turnIZone = 1. / 256;
