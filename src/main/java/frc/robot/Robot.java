@@ -57,6 +57,22 @@ public class Robot extends TimedRobot {
     m_swerve.setRelOffset();
   }
 
+  private double maxSpeed = DrvConst.kMaxSpeed,
+                maxAngularSpeed = DrvConst.kMaxAngularSpeed;
+
+  void showMaxSpeeds() {
+    SmartDashboard.putNumber("Max. linear speed", maxSpeed);
+    SmartDashboard.putNumber("Max. angular speed", maxAngularSpeed);
+  }
+
+  void setMaxSpeed(double speed) {
+    maxSpeed = speed;
+  }
+  
+  void setMaxAngularSpeed(double speed) {
+    maxAngularSpeed = speed;
+  }
+  
   private void showFieldCtr() {
     SmartDashboard.putBoolean("Field Centered", useField);
   }
@@ -77,19 +93,19 @@ public class Robot extends TimedRobot {
       m_swerve.drive(1, 0, 0, false, getPeriod());
       return;
     }
-    // TODO: have max speed modifiable
+    // DONE: have max speed modifiable
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
         - m_xspeedLimiter.calculate(MathUtil.applyDeadband(drive_controller.getLeftY(), Constants.deadBand))
-            * DrvConst.kMaxSpeed;
+            * maxSpeed;
 
     // Get the y speed or sideways/strafe speed. We are inverting this because
     // we want a positive value when we pull to the left. Xbox controllers
     // return positive values when you pull to the right by default.
     final var ySpeed =
         - m_yspeedLimiter.calculate(MathUtil.applyDeadband(drive_controller.getLeftX(), Constants.deadBand))
-            * DrvConst.kMaxSpeed;
+            * maxSpeed;
 
     // Get the rate of angular rotation. We are inverting this because we want a
     // positive value when we pull to the left (remember, CCW is positive in
@@ -97,7 +113,7 @@ public class Robot extends TimedRobot {
     // the right by default.
     final var rot =
         - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))
-            * DrvConst.kMaxAngularSpeed;
+            * maxAngularSpeed;
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
   }
