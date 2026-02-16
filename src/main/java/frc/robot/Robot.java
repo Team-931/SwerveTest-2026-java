@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
     double xSpeed = (autoTimer.get() < 2) ? 1 : 0; //Drive fwd 1 m/s for 2 s
     m_swerve.drive(xSpeed, 0, 0, useField, getPeriod());
     //driveWithJoystick(false);
-    //m_swerve.updateOdometry();
+    m_swerve.updateOdometry();
   }
 
   static boolean useField = true, useVelCtrl = false;
@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveWithJoystick(useField);
+    m_swerve.updateOdometry();
   }
 
   private boolean firstTimeDisabled = true;

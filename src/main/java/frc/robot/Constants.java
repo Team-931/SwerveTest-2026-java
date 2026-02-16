@@ -59,7 +59,7 @@ final class Constants {
         // TODO Decide whether turn unit should be radians, or rotations as currently.
                             turnConversion = 1. / turnGearing;
         static final double velI = 0.001, velIZone = .05;
-        static final double turnI = 0.003 * posP, turnIZone = 1. / 256;
+        static final double turnI = 0.003 * posP, turnIZone = 1. / 64;
         static final double minSpd = .001, // mm / s
                             minSpdSq = minSpd*minSpd;
     }

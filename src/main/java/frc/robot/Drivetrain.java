@@ -6,7 +6,12 @@ package frc.robot;
 
 import com.studica.frc.AHRS;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DrvConst;
 
 /** Represents a swerve drive style drivetrain. */
@@ -18,6 +23,21 @@ public class Drivetrain {
 
   private final  AHRS gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
+private final SwerveDriveKinematics kinematics =
+      new SwerveDriveKinematics(
+          DrvConst.frontLeftLocation, DrvConst.frontRightLocation, DrvConst.backLeftLocation, DrvConst.backRightLocation);
+
+  private final SwerveDrivePoseEstimator odometry =
+      new SwerveDrivePoseEstimator(
+          kinematics,
+          gyro.getRotation2d(),
+          new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            backLeft.getPosition(),
+            backRight.getPosition()
+          },
+          Pose2d.kZero);
   public Drivetrain() {
     gyro.reset();//TODO: Is this line needed?
     while(gyro.isCalibrating());
@@ -92,16 +112,21 @@ void fullSpeed() {
     frontLeft.doAngle360(yes);
     frontRight.doAngle360(yes);
   }
+  /** Display debugging info */
    void report() {
     frontLeft.report();
     frontRight.report();
     backLeft.report();
     backRight.report();
+    var pose = odometry.getEstimatedPosition();
+    SmartDashboard.putNumber("estd. X", pose.getX());
+    SmartDashboard.putNumber("estd. Y", pose.getY());
+    SmartDashboard.putNumber("estd. Angle", pose.getRotation().getRotations());
   }
-
+//TODO: put in a reset - odometer command
   /** Updates the field relative position of the robot. */
-/*   public void updateOdometry() {
-    m_odometry.update(
+  public void updateOdometry() {
+    odometry.update(
         gyro.getRotation2d(),
         new SwerveModulePosition[] {
           frontLeft.getPosition(),
@@ -110,4 +135,4 @@ void fullSpeed() {
           backRight.getPosition()
         });
   }
- */}
+}
