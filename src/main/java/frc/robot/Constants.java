@@ -47,7 +47,7 @@ final class Constants {
     }
     static final class SwvModConst {
         final static ClosedLoopSlot posSlot = ClosedLoopSlot.kSlot0;
-        final static double posP = .1;
+        final static double posP = .5;
         final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
         final static double velP = .0001;
         static final double kWheelRadius = .05931 / 2; /* 0.034 */; //meter //diameter: 2.335 in, 59.31 mm
