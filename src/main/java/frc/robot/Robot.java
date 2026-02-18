@@ -15,6 +15,7 @@ import frc.robot.Constants.DrvConst;
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
   private final Drivetrain m_swerve = new Drivetrain();
+  private final transferShooter actualname = new transferShooter();
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
@@ -42,6 +43,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
+    if (drive_controller.getLeftStickButtonPressed()) actualname.shoot();
   }
 
   private boolean firstTimeDisabled = true;
