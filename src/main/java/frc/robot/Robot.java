@@ -40,6 +40,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    SmartDashboard.putBoolean("vision target found", LimelightHelpers.getTV("limelight-a"));
+    SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
   }
@@ -54,7 +56,7 @@ public class Robot extends TimedRobot {
       //m_swerve.zeroYaw();//TODO: check if need
       showFieldCtr();
     }
-    LimelightHelpers.setLEDMode_ForceOff("");
+    LimelightHelpers.setLEDMode_ForceOff("limelight-b");
     m_swerve.setRelOffset();
   }
 
