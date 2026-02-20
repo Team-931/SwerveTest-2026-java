@@ -34,9 +34,13 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void autonomousPeriodic() {
-    /* double xSpeed = (autoTimer.get() < 2) ? 1 : 0; //Drive fwd 1 m/s for 2 s
-    m_swerve.drive(xSpeed, 0, 0, useField);
-     *///driveWithJoystick(false);
+    double autoTimercheck = autoTimer.get();
+
+    double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
+    double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
+
+    m_swerve.drive(xSpeed, ySpeed, 0, useField);
+    //driveWithJoystick(false);
     m_swerve.updateOdometry();
     var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), OurTrajectories.circleTrajectory.sample(autoTimer.get()));
     SmartDashboard. putNumber("traj x spd ", desiredSpds.vxMetersPerSecond);

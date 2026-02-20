@@ -10,7 +10,7 @@ final class Constants {
   
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed/* or SwvModConst.freeVeloc */; // 3 meters per second
-         static final double kMaxAngularSpeed = .5; // 1/2 radian per second
+         static final double kMaxAngularSpeed = 1*Math.PI; // 0.5 rotation per second, was 0.5 rad/s before
          static final class Setup {
             final int driveId, turnId;
             final double absOffset;
