@@ -38,8 +38,10 @@ public class Robot extends TimedRobot {
     m_swerve.drive(xSpeed, 0, 0, useField);
      *///driveWithJoystick(false);
     m_swerve.updateOdometry();
-    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), OurTrajectories.circleTrajectory.sample(autoTimer.get()));
-    SmartDashboard. putNumber("traj x spd ", desiredSpds.vxMetersPerSecond);
+    var sample = OurTrajectories.circleTrajectory.sample(autoTimer.get());
+    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
+    SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
+    SmartDashboard.putNumber("calc x spd", desiredSpds.vxMetersPerSecond);
   }
 
   static boolean useField = true, useVelCtrl = false;
