@@ -64,7 +64,7 @@ private final SwerveDriveKinematics kinematics =
    * @param fieldRelative Whether the provided x and y speeds are relative to the field.
    */
   public void drive(
-      double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
+      double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     
   Translation2d FLVel, BLVel, FRVel, BRVel,  
   BaseVel = new Translation2d(xSpeed, ySpeed);
@@ -82,21 +82,21 @@ private final SwerveDriveKinematics kinematics =
   FRVel = BaseVel.plus(DrvConst.frontRightClW.times(rot));
   BRVel = BaseVel.plus(DrvConst.backRightClW.times(rot));
   
-  frontLeft.setVel(FLVel, periodSeconds);
-  backLeft.setVel(BLVel, periodSeconds);
-  frontRight.setVel(FRVel, periodSeconds);
-  backRight.setVel(BRVel, periodSeconds);
+  frontLeft.setVel(FLVel);
+  backLeft.setVel(BLVel);
+  frontRight.setVel(FRVel);
+  backRight.setVel(BRVel);
 }
 
-void setXPosture(double periodSeconds) {
+void setXPosture() {
   Translation2d FLVel = DrvConst.frontLeftLocation.div(128),
                 BLVel = DrvConst.backLeftLocation.div(128), 
                 FRVel = DrvConst.frontRightLocation.div(128), 
                 BRVel = DrvConst.backRightLocation.div(128);
-  frontLeft.setVel(FLVel, periodSeconds);
-  backLeft.setVel(BLVel, periodSeconds);
-  frontRight.setVel(FRVel, periodSeconds);
-  backRight.setVel(BRVel, periodSeconds);
+  frontLeft.setVel(FLVel);
+  backLeft.setVel(BLVel);
+  frontRight.setVel(FRVel);
+  backRight.setVel(BRVel);
 }
 
 void fullSpeed() {
@@ -124,6 +124,17 @@ void fullSpeed() {
     SmartDashboard.putNumber("estd. Angle", pose.getRotation().getRotations());
   }
 //TODO: put in a reset - odometer command
+  /** base future odometry at {@code currentPose}
+   * @param currentPose the "known" current Pose2d
+   */
+  void resetOdometry(Pose2d currentPose) {
+    odometry.resetPose(currentPose);
+  }
+
+  /** @return where it thinks we are */
+  Pose2d reportOdometry() {
+    return odometry.getEstimatedPosition();
+  }
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
     odometry.update(

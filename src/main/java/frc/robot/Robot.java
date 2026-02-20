@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -16,11 +17,12 @@ public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter actualname = new transferShooter();
-
+  {new OurTrajectories();}
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+  final private LTVUnicycleController ctrlr = new LTVUnicycleController(getPeriod() /* s */, DrvConst.kMaxSpeed /*  m/s */); 
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
@@ -28,13 +30,16 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autoTimer.restart();
+    m_swerve.resetOdometry(OurTrajectories.circleTrajectory.getInitialPose());
   }
   @Override
   public void autonomousPeriodic() {
-    double xSpeed = (autoTimer.get() < 2) ? 1 : 0; //Drive fwd 1 m/s for 2 s
-    m_swerve.drive(xSpeed, 0, 0, useField, getPeriod());
-    //driveWithJoystick(false);
+    /* double xSpeed = (autoTimer.get() < 2) ? 1 : 0; //Drive fwd 1 m/s for 2 s
+    m_swerve.drive(xSpeed, 0, 0, useField);
+     *///driveWithJoystick(false);
     m_swerve.updateOdometry();
+    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), OurTrajectories.circleTrajectory.sample(autoTimer.get()));
+    SmartDashboard. putNumber("traj x spd ", desiredSpds.vxMetersPerSecond);
   }
 
   static boolean useField = true, useVelCtrl = false;
@@ -87,7 +92,7 @@ public class Robot extends TimedRobot {
   private void driveWithJoystick(boolean fieldRelative) {
     if(drive_controller.getRightBumperButtonPressed()) m_swerve.doAngle360(true); //TODO: don't need after abs encoders are in
     if(drive_controller.getRightBumperButtonReleased()) m_swerve.doAngle360(false); //TODO: don't need after abs encoders are in,
-    if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture(getPeriod());
+    if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
     if(drive_controller.getBButtonPressed()) {
       useField ^= true;
@@ -98,7 +103,7 @@ public class Robot extends TimedRobot {
       return;
     }
     if(drive_controller.getYButton()) {
-      m_swerve.drive(1, 0, 0, false, getPeriod());
+      m_swerve.drive(1, 0, 0, false);
       return;
     }
     // DONE: have max speed modifiable
@@ -123,6 +128,6 @@ public class Robot extends TimedRobot {
         - m_rotLimiter.calculate(MathUtil.applyDeadband(drive_controller.getRightX(), Constants.deadBand))
             * maxAngularSpeed;
 
-    m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
+    m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
   }
 }

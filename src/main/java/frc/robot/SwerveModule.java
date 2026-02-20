@@ -161,14 +161,14 @@ private boolean noLaborSaving = false;
   private double X;//moved out of setVel only for reporting purpose
 
   //private Translation2d velGoal = new Translation2d();
-  public void setVel(Translation2d translation2d, double period) {
+  public void setVel(Translation2d translation2d) {
     Translation2d velGoal = translation2d.rotateBy(turnAngle().unaryMinus());
     X = velGoal.getX() == 0 ? 1e-10 : velGoal.getX();//TODO: make X local again
     drivePIDController.setSetpoint(X, ControlType.kVelocity, SwvModConst.velSlot);//Done: check conversion factors
 
     if (Robot.useVelCtrl) {
 //      SmartDashboard.putNumber("slope", velGoal.getY()/X);
-      turningPIDController.setSetpoint(velGoal.getY()/X / period, ControlType.kVelocity, SwvModConst.velSlot);
+      turningPIDController.setSetpoint(velGoal.getY()/X / Robot.kDefaultPeriod, ControlType.kVelocity, SwvModConst.velSlot);
     }
     else if(noLaborSaving || translation2d.getSquaredNorm() >= SwvModConst.minSpdSq) {
       double angle = Math.atan2(translation2d.getY(), translation2d.getX()) / 2 / Math.PI;
