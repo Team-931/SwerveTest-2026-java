@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     double autoTimercheck = autoTimer.get();
-    if(autoTimercheck < 7) {// Eliot's auto
+    if(autoTimercheck < 7) {// Elliot's auto
       double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
       double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
 
