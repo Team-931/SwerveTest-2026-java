@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-  final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(getPeriod() /* s */); 
+  final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
