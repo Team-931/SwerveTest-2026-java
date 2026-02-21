@@ -43,6 +43,8 @@ final class Constants {
          static final double driveRadius = 
                  Math.max(frontLeftLocation.getNorm(), Math.max(frontRightLocation.getNorm(), 
                  Math.max(backLeftLocation.getNorm(), backRightLocation.getNorm())));
+                 
+         static final double traj_kP = 0; // how much to correct position errors during a Trajectory
 
     }
     static final class SwvModConst {

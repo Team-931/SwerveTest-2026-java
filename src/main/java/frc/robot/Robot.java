@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-  final private LTVUnicycleController ctrlr = new LTVUnicycleController(getPeriod() /* s */, DrvConst.kMaxSpeed /*  m/s */); 
+  final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(getPeriod() /* s */); 
 
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
@@ -48,7 +48,7 @@ public class Robot extends TimedRobot {
       var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
       SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
       SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
-      SmartDashboard.putNumber("calc x spd", desiredSpds.vxMetersPerSecond);
+      SmartDashboard.putNumber("calc x spd", desiredSpds.getX());
       var crudeSpds = new Translation2d(sample.velocityMetersPerSecond, sample.poseMeters.getRotation());
       m_swerve.drive(crudeSpds.getX(), crudeSpds.getY(), 0, true);
     } 

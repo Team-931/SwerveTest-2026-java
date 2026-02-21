@@ -128,7 +128,7 @@ void fullSpeed() {
    * @param currentPose the "known" current Pose2d
    */
   void resetOdometry(Pose2d currentPose) {
-    odometry.resetPose(currentPose);
+    odometry.resetTranslation(currentPose.getTranslation());
   }
 
   /** @return where it thinks we are */
