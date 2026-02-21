@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -35,17 +36,23 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     double autoTimercheck = autoTimer.get();
+    if(autoTimercheck < 7) {// Eliot's auto
+      double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
+      double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
 
-    double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
-    double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
-
-    m_swerve.drive(xSpeed, ySpeed, 0, useField);
+      m_swerve.drive(xSpeed, ySpeed, 0, useField);
+    }
     //driveWithJoystick(false);
+    else { // Harrington's auto: it's crude because doesn't use odometry. TODO: less crude
+      var sample = OurTrajectories.circleTrajectory.sample(autoTimercheck - 7);
+      var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
+      SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
+      SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
+      SmartDashboard.putNumber("calc x spd", desiredSpds.vxMetersPerSecond);
+      var crudeSpds = new Translation2d(sample.velocityMetersPerSecond, sample.poseMeters.getRotation());
+      m_swerve.drive(crudeSpds.getX(), crudeSpds.getY(), 0, true);
+    } 
     m_swerve.updateOdometry();
-    var sample = OurTrajectories.circleTrajectory.sample(autoTimer.get());
-    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
-    SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
-    SmartDashboard.putNumber("calc x spd", desiredSpds.vxMetersPerSecond);
   }
 
   static boolean useField = true, useVelCtrl = false;

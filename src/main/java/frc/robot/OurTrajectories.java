@@ -15,8 +15,8 @@ final class OurTrajectories {
             Pose2d.kZero, 
             List.of(
                 new Translation2d(1, 1),
-                new Translation2d(2, 0),
-                new Translation2d(1, -1)), 
+                new Translation2d(0, 2),
+                new Translation2d(-1, 1)), 
             Pose2d.kZero, 
             config);
 }

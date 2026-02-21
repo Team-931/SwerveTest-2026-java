@@ -173,6 +173,9 @@ networktables.json
 simgui.json
 *-window.json
 
+### Simgui stuff ###
+simgui*.json
+
 # Simulation data log directory
 logs/
 
