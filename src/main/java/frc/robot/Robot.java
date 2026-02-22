@@ -43,13 +43,13 @@ public class Robot extends TimedRobot {
       m_swerve.drive(xSpeed, ySpeed, 0, useField);
     }
     //driveWithJoystick(false);
-    else { // Harrington's auto: it's crude because doesn't use odometry. TODO: less crude
+    else { // Harrington's auto: it's use of odometry is still crude. TODO: less crude
       var sample = OurTrajectories.circleTrajectory.sample(autoTimercheck - 7);
       var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
       SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
       SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
       SmartDashboard.putNumber("calc x spd", desiredSpds.getX());
-      //var crudeSpds = new Translation2d(sample.velocityMetersPerSecond, sample.poseMeters.getRotation());
+      
       m_swerve.drive(desiredSpds.getX(), desiredSpds.getY(), 0, true);
     } 
     m_swerve.updateOdometry();
