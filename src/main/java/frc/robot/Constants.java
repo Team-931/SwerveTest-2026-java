@@ -47,7 +47,7 @@ final class Constants {
         /**  how much to correct position errors during a Trajectory:
          * units of proportion / sec
          */
-         static final double traj_kP = 1;
+         static final double traj_kP = 2;
 
     }
     static final class SwvModConst {
