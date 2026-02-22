@@ -113,11 +113,19 @@ public class Robot extends TimedRobot {
       m_swerve.fullSpeed();
       return;
     }
-    if(drive_controller.getYButton()) {
+    if(drive_controller.getYButtonPressed()) {
+      setMaxSpeed(DrvConst.kMaxSpeed/4);
+      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed/4);
+    }
+    if(drive_controller.getYButtonReleased()) {
+      setMaxSpeed(DrvConst.kMaxSpeed);
+      setMaxAngularSpeed(DrvConst.kMaxAngularSpeed);
+    }
+   /*  if(drive_controller.getYButton()) {
       m_swerve.drive(1, 0, 0, false);
       return;
     }
-    // DONE: have max speed modifiable
+    */ // DONE: have max speed modifiable
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
