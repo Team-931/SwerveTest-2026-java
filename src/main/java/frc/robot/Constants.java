@@ -71,6 +71,7 @@ final class Constants {
     }
     static final class ShootConstants {
         static final double launch_speed = 0.5;
+        static final double transferPower = .5;
     }
     
 }

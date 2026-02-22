@@ -123,7 +123,6 @@ void fullSpeed() {
     SmartDashboard.putNumber("estd. Y", pose.getY());
     SmartDashboard.putNumber("estd. Angle", pose.getRotation().getRotations());
   }
-//TODO: put in a reset - odometer command
   /** base future odometry at {@code currentPose}
    * @param currentPose the "known" current Pose2d
    */

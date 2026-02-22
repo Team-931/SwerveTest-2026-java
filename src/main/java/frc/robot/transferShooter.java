@@ -15,5 +15,8 @@ public class transferShooter {
         shooterRight.setControl(followLeft);}
 //TODO orientation & prefomance activities
 void shoot(){shooterLeft.set (ShootConstants.launch_speed);}
+void setTransfer(boolean on) {
+    transfer.set(on ? ShootConstants.transferPower : 0);
+}
 
 }
