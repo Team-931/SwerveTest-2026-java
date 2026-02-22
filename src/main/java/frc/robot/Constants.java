@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 final class Constants {
     static final double deadBand = .05;
+    static final int nominalVoltage = 12;
   
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed/* or SwvModConst.freeVeloc */; // 3 meters per second
@@ -68,6 +69,8 @@ final class Constants {
         static final double minSpd = .001, // mm / s
                             minSpdSq = minSpd*minSpd;
     }
-    static final int nominalVoltage = 12;
+    static final class ShootConstants {
+        static final double launch_speed = 0.5;
+    }
     
 }
