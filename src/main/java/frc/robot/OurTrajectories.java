@@ -9,7 +9,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 final class OurTrajectories {
-    static TrajectoryConfig config = new TrajectoryConfig(3, 2);
+    static TrajectoryConfig config = new TrajectoryConfig(1, 2);
     static Trajectory circleTrajectory = 
         TrajectoryGenerator.generateTrajectory(
             Pose2d.kZero, 

@@ -44,7 +44,10 @@ final class Constants {
                  Math.max(frontLeftLocation.getNorm(), Math.max(frontRightLocation.getNorm(), 
                  Math.max(backLeftLocation.getNorm(), backRightLocation.getNorm())));
                  
-         static final double traj_kP = 0; // how much to correct position errors during a Trajectory
+        /**  how much to correct position errors during a Trajectory:
+         * units of proportion / sec
+         */
+         static final double traj_kP = 1;
 
     }
     static final class SwvModConst {

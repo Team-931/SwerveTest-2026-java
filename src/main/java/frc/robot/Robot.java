@@ -49,8 +49,8 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
       SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
       SmartDashboard.putNumber("calc x spd", desiredSpds.getX());
-      var crudeSpds = new Translation2d(sample.velocityMetersPerSecond, sample.poseMeters.getRotation());
-      m_swerve.drive(crudeSpds.getX(), crudeSpds.getY(), 0, true);
+      //var crudeSpds = new Translation2d(sample.velocityMetersPerSecond, sample.poseMeters.getRotation());
+      m_swerve.drive(desiredSpds.getX(), desiredSpds.getY(), 0, true);
     } 
     m_swerve.updateOdometry();
   }
