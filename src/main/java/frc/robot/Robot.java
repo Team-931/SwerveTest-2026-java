@@ -61,7 +61,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
-    if (drive_controller.getLeftStickButtonPressed()) actualname.shoot();
+    if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
 
     //if(drive_controller.getBButton()){System.out.println("Hello world");}
     
