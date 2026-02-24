@@ -1,9 +1,15 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.revrobotics.spark.ClosedLoopSlot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 
 final class Constants {
     static final double deadBand = .05;
@@ -73,6 +79,13 @@ final class Constants {
     static final class ShootConstants {
         static final double launch_speed = 0.5;
         static final double transferPower = .5;
+        static final LinearVelocity kMaxServoSpeed = Millimeters.of(20).per(Second);
+        static final double kMinPosition = 0.01;
+        static final double kMaxPosition = 0.77;
+        static final double kPositionTolerance = 0.01;
+        static final Distance kServoLength = Millimeters.of(100);
+        /** Time for hood Servos to run their full length */
+        static final double hoodFullLengthTime = kServoLength.div(kMaxServoSpeed).in(Seconds);
     }
     
 }

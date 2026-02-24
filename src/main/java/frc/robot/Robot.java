@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DrvConst;
+import frc.robot.Constants.ShootConstants;
 
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
@@ -26,6 +27,7 @@ public class Robot extends TimedRobot {
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
   private final Timer autoTimer = new Timer();
+  {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", actualname.hoodReady()), .25,.125);}
   @Override
   public void autonomousInit() {
     autoTimer.restart();
@@ -34,7 +36,13 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     double autoTimercheck = autoTimer.get();
-    if(autoTimercheck < 7) {// Elliot's auto
+    if(Math.abs(autoTimercheck - 1) <= kDefaultPeriod/2) 
+      actualname.adjustHood(.77);
+    if(Math.abs(autoTimercheck - 3) <= kDefaultPeriod/2) 
+      actualname.adjustHood(.05);
+    if(Math.abs(autoTimercheck - 7) <= kDefaultPeriod/2) 
+      actualname.adjustHood((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2);
+/*     if(autoTimercheck < 7) {// Elliot's auto
       double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
       double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
 
@@ -50,7 +58,7 @@ public class Robot extends TimedRobot {
       
       m_swerve.drive(desiredSpds.getX(), desiredSpds.getY(), 0, true);
     } 
-    m_swerve.updateOdometry();
+ */    m_swerve.updateOdometry();
   }
 
   static boolean useField = true, useVelCtrl = false;
@@ -61,7 +69,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("april tag found", LimelightHelpers.getTV("limelight-b"));
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
-    if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
+    // if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
 
     //if(drive_controller.getBButton()){System.out.println("Hello world");}
     
