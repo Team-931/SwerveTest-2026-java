@@ -2,7 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.Constants.DrvConst;
 
 class TrajectoryTranslator {
@@ -12,9 +13,15 @@ class TrajectoryTranslator {
  * @return speed vector to drive
 */
 // TODO: also calculate for direction to face.
-	Translation2d calculate(Pose2d reportOdometry, State sample) {
+	Translation2d calculate(Pose2d reportOdometry, Trajectory.State sample) {
         var x = new Translation2d(sample.velocityMetersPerSecond, sample.poseMeters.getRotation())
             .plus((sample.poseMeters.getTranslation() . minus(reportOdometry.getTranslation())) . times(DrvConst.traj_kP));
 		return x;
+	}
+
+	ChassisSpeeds calculate(Pose2d reportOdometry, Trajectory.State sample, AttitudePlan.State attitude) {
+		var linear = calculate(reportOdometry, sample);
+		double correction = DrvConst.attitudeP * attitude.angle .minus(reportOdometry.getRotation()) .getRadians();
+		return new ChassisSpeeds(linear.getX(), linear.getY(), attitude.rotSpeed + correction);
 	}
 }

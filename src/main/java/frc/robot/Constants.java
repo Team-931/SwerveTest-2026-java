@@ -49,6 +49,7 @@ final class Constants {
          * units of proportion / sec
          */
          static final double traj_kP = 2;
+         static final double attitudeP = 0;
 
     }
     static final class SwvModConst {
