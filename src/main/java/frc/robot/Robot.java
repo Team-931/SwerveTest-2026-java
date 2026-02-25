@@ -10,6 +10,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.DrvConst;
 import frc.robot.Constants.ShootConstants;
 
@@ -28,6 +31,10 @@ public class Robot extends TimedRobot {
   {addPeriodic(m_swerve::report, .25);}
   private final Timer autoTimer = new Timer();
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", actualname.hoodReady()), .25,.125);}
+
+  Command setHoodCommand(double level) {
+    return Commands.waitSeconds(1).andThen(() -> actualname.adjustHood(level)) .andThen(Commands.waitUntil(actualname::hoodReady));
+  }
   @Override
   public void autonomousInit() {
     autoTimer.restart();

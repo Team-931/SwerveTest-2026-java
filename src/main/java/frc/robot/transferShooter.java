@@ -1,9 +1,17 @@
 package frc.robot;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.ShootConstants;
@@ -19,13 +27,17 @@ public class transferShooter {
 
     TalonFX shooterLeft=new TalonFX(1), shooterMid=new TalonFX(2), shooterRight=new TalonFX(3), 
     transfer=new TalonFX(4);
-    Follower followLeft = new Follower(1, MotorAlignmentValue.Aligned);
+    {configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);}
+    Follower followLeft = new Follower(1, MotorAlignmentValue.Opposed);
     {
         shooterMid.setControl(followLeft); 
         shooterRight.setControl(followLeft);
     }
 //TODO orientation & prefomance activities
-void shoot(boolean on){shooterLeft.set (on?ShootConstants.launch_speed:0);}
+void shoot(boolean on){
+    shooterLeft.setVoltage (on ? Constants.nominalVoltage * ShootConstants.launch_speed : 0);
+}
+
 void setTransfer(boolean on) {
     transfer.set(on ? ShootConstants.transferPower : 0);
 }
@@ -36,6 +48,7 @@ double hoodLastSet;
 
 //TODO check if the requested position is too far
 void adjustHood(double out) {
+    out = MathUtil.clamp(out, ShootConstants.kMinPosition, ShootConstants.kMaxPosition);
     rightServo.setPosition(out); leftServo.setPosition(out);
     hoodTimer.restart();
     hoodReadyTime = Math.abs(out - hoodLastSet) * ShootConstants.hoodFullLengthTime;
@@ -46,4 +59,33 @@ boolean hoodReady() {
     return !hoodTimer.isRunning() || hoodTimer.get() >= hoodReadyTime;
 }
 
+// Copied from West Coast Products
+    private void configureMotor(TalonFX motor, InvertedValue invertDirection) {
+        final TalonFXConfiguration config = new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withInverted(invertDirection)
+                    .withNeutralMode(NeutralModeValue.Coast)
+            )
+            .withVoltage(
+                new VoltageConfigs()
+                    .withPeakReverseVoltage(0)
+            )
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(120)
+                    .withStatorCurrentLimitEnable(true)
+                    .withSupplyCurrentLimit(70)
+                    .withSupplyCurrentLimitEnable(true)
+            )
+            .withSlot0(
+                new Slot0Configs()
+                    .withKP(0.5)
+                    .withKI(2)
+                    .withKD(0)
+                    .withKV(Constants.nominalVoltage / Constants.krakenFreeSpeed) // 12 volts when requesting max RPS
+            );
+        
+        motor.getConfigurator().apply(config);
+    }
 }

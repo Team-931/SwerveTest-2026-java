@@ -13,7 +13,8 @@ import edu.wpi.first.units.measure.LinearVelocity;
 
 final class Constants {
     static final double deadBand = .05;
-    static final int nominalVoltage = 12;
+    static final double nominalVoltage = 12; /* Volts */
+    static final double krakenFreeSpeed = (6000); /* RPM */
   
     static final class DrvConst {
          static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed/* or SwvModConst.freeVeloc */; // 3 meters per second
