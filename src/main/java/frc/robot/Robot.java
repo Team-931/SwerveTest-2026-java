@@ -37,19 +37,25 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void autonomousInit() {
-    autoTimer.restart();
+    //TODO: Command based:
+    setHoodCommand(.77)
+      .andThen(setHoodCommand(.05), 
+        setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)).schedule();
+/*     autoTimer.restart();
     m_swerve.resetOdometry(OurTrajectories.circleTrajectory.getInitialPose());
-  }
+ */  }
   @Override
   public void autonomousPeriodic() {
-    double autoTimercheck = autoTimer.get();
+    //TODO: Command based:
+    CommandScheduler.getInstance().run();
+/*     double autoTimercheck = autoTimer.get();
     if(Math.abs(autoTimercheck - 1) <= kDefaultPeriod/2) 
       actualname.adjustHood(.77);
     if(Math.abs(autoTimercheck - 3) <= kDefaultPeriod/2) 
       actualname.adjustHood(.05);
     if(Math.abs(autoTimercheck - 7) <= kDefaultPeriod/2) 
       actualname.adjustHood((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2);
-/*     if(autoTimercheck < 7) {// Elliot's auto
+ *//*     if(autoTimercheck < 7) {// Elliot's auto
       double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
       double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
 
