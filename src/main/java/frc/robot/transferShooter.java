@@ -44,14 +44,20 @@ void setTransfer(boolean on) {
 
 Timer hoodTimer = new Timer();
 double hoodReadyTime;
+double hoodDirection;
 double hoodLastSet; 
 
 //TODO check if the requested position is too far
 void adjustHood(double out) {
     out = MathUtil.clamp(out, ShootConstants.kMinPosition, ShootConstants.kMaxPosition);
     rightServo.setPosition(out); leftServo.setPosition(out);
+    double x
+        = (hoodTimer.isRunning() && (x = hoodReadyTime - hoodTimer.get()) > 0) ?
+         x *= hoodDirection : 0;
     hoodTimer.restart();
-    hoodReadyTime = Math.abs(out - hoodLastSet) * ShootConstants.hoodFullLengthTime;
+    hoodReadyTime = x + (out - hoodLastSet) * ShootConstants.hoodFullLengthTime;
+    hoodDirection = Math.signum(hoodReadyTime);
+    hoodReadyTime = Math.abs(hoodReadyTime);
     hoodLastSet = out;
 }
 
