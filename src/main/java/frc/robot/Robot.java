@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,9 +28,38 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
   final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
 
+  Trajectory currentTrajectory;
+  private final Timer trajectoryTimer = new Timer();
+  boolean trajectoryDone;
+
+  void setTrajectory(Trajectory trajectory) {
+    currentTrajectory = trajectory;
+    m_swerve.resetOdometry(currentTrajectory.getInitialPose());
+    trajectoryTimer.restart();
+    trajectoryDone = false;
+  }
+  
+  void stopTrajectory() {
+    currentTrajectory = null;
+  }
+
+  void runTrajectory() {
+    if(currentTrajectory != null)
+    { //  its use of odometry is still crude. TODO: less crude
+        double timercheck = trajectoryTimer.get();
+        trajectoryDone = timercheck >= currentTrajectory.getTotalTimeSeconds();
+        var sample = currentTrajectory.sample(timercheck);
+        var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
+        SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
+        SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
+        SmartDashboard.putNumber("calc x spd", desiredSpds.getX());
+        
+        m_swerve.drive(desiredSpds.getX(), desiredSpds.getY(), 0, true);
+      }
+    }
+    
   // Report swerve drive data
   {addPeriodic(m_swerve::report, .25);}
-  private final Timer autoTimer = new Timer();
   {addPeriodic(() -> SmartDashboard.putBoolean("Hood ready?", actualname.hoodReady()), .25,.125);}
 
   Command setHoodCommand(double level) {
@@ -41,9 +71,7 @@ public class Robot extends TimedRobot {
     setHoodCommand(.77)
       .andThen(setHoodCommand(.05), 
         setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)).schedule();
-/*     autoTimer.restart();
-    m_swerve.resetOdometry(OurTrajectories.circleTrajectory.getInitialPose());
- */  }
+  }
   @Override
   public void autonomousPeriodic() {
     //TODO: Command based:
