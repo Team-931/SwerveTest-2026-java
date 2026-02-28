@@ -131,10 +131,10 @@ public final class TrajectoryGenerator {
     // Return the generated trajectory.
     return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config);
   }
-static final class Landmark {
-  final double key;
-  Trajectory.State state;
-  Landmark(double key) {
+static final public class Landmark {
+  public final double key;
+  public Trajectory.State state;
+  public Landmark(double key) {
     this.key = key;
   } 
 }
@@ -158,7 +158,7 @@ static final class Landmark {
       Collection<Landmark> landmarks) {
 
     // Sort the landmarks
-    var landmarkArray = (Landmark[]) landmarks.toArray();
+    var landmarkArray =  landmarks.toArray(new Landmark[0]);
     Arrays.sort(landmarkArray, (a, b) -> Double.compare(a.key, b.key));
     // Prepare an array for parametrization
     var length = landmarkArray.length;
@@ -185,7 +185,8 @@ static final class Landmark {
       points =
           splinePointsFromSplines(
               SplineHelper.getCubicSplinesFromControlVectors(
-                  newInitial, interiorWaypoints.toArray(new Translation2d[0]), newEnd));
+                  newInitial, interiorWaypoints.toArray(new Translation2d[0]), newEnd),
+                  landmarkInfo);
     } catch (MalformedSplineException ex) {
       reportError(ex.getMessage(), ex.getStackTrace());
       return kDoNothingTrajectory;

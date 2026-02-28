@@ -24,7 +24,11 @@ public class Robot extends TimedRobot {
   private final transferShooter actualname = new transferShooter();
   private final Feeder feeder = new Feeder();
 
-  {new OurTrajectories();}
+  {
+    new OurTrajectories();
+    SmartDashboard.putNumber("landmark time", OurTrajectories.landmarks.get(0).state.timeSeconds);
+    SmartDashboard.putNumber("circle time", OurTrajectories.circleTrajectory.getTotalTimeSeconds());
+  }
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);

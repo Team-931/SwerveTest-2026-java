@@ -18,6 +18,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
 final class OurTrajectories {
     static TrajectoryConfig config = new TrajectoryConfig(1, 2);
+    static List<TrajectoryGenerator.Landmark> landmarks = List.of(new TrajectoryGenerator.Landmark(3.9));
     static Trajectory circleTrajectory = 
         TrajectoryGenerator.generateTrajectory(
             Pose2d.kZero, // start position and heading
@@ -26,5 +27,5 @@ final class OurTrajectories {
                 new Translation2d(0, 2),
                 new Translation2d(-1, 1)), 
             Pose2d.kZero, // end position and heading
-            config);
+            config, landmarks);
 }

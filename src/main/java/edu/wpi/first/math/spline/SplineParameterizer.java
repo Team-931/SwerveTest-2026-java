@@ -246,6 +246,7 @@ public final class SplineParameterizer {
           ix < landmarks.length 
           && (l = landmarks[ix]).splineIndexIn == splineIn 
           && l.splineParamIn <= current.t1;
+          ++ ix
           ) 
           l.divide();
         stack.addFirst(new StackContents((current.t0 + current.t1) / 2, current.t1));
