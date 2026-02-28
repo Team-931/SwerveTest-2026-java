@@ -409,7 +409,7 @@ static final public class Landmark {
     // Iterate through the vector and parameterize each spline, adding the
     // parameterized points to the final vector.
     for (final var spline : splines) {
-      var points = SplineParameterizer.parameterize(spline, splineIx++, splinePoints.size() - 1, landmarkInfos, landmarkIx);
+      var points = SplineParameterizer.parameterize(spline, splineIx++, splinePoints.size() - 2, landmarkInfos, landmarkIx);
 
       // Append the array of poses to the vector. We are removing the first
       // point because it's a duplicate of the last point from the previous
