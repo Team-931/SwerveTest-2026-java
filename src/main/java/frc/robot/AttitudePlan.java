@@ -3,6 +3,9 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 class AttitudePlan {
+    State report(double time) {
+        return State.kZero;
+    }
     /** Represents one stage of the plan */
     static class State {
         /** direction to face (possibly relative to some external landmark) */
@@ -16,5 +19,8 @@ class AttitudePlan {
             angle = currentAngle;
             rotSpeed = radiansPerSec;
         }
+        static State kZero = new State(Rotation2d.kZero, 0);
     }
+
+    //TODO: members 
 }

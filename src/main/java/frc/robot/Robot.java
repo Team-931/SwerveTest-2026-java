@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   {
     new OurTrajectories();
     SmartDashboard.putNumber("landmark time", OurTrajectories.landmarks.get(0).state.timeSeconds);
+    SmartDashboard.putNumber("landmark time1", OurTrajectories.landmarks.get(1).state.timeSeconds);
     SmartDashboard.putNumber("circle time", OurTrajectories.circleTrajectory.getTotalTimeSeconds());
   }
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
@@ -35,34 +36,57 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
   final private TrajectoryTranslator ctrlr = new TrajectoryTranslator(); 
 
-  Trajectory currentTrajectory;
-  private final Timer trajectoryTimer = new Timer();
-  boolean trajectoryDone;
+  class TrajectoryWrap {
+    Trajectory currentTrajectory;
+    private final Timer timer = new Timer();
+    boolean done;
 
-  void setTrajectory(Trajectory trajectory) {
-    currentTrajectory = trajectory;
-    m_swerve.resetOdometry(currentTrajectory.getInitialPose());
-    trajectoryTimer.restart();
-    trajectoryDone = false;
-  }
-  
-  void stopTrajectory() {
-    currentTrajectory = null;
-  }
-
-  void runTrajectory() {
+    Trajectory.State getSample() {
+          double timercheck = timer.get();
+    Trajectory.State sample = null;
     if(currentTrajectory != null)
-    { //  its use of odometry is still crude. TODO: less crude
-        double timercheck = trajectoryTimer.get();
-        trajectoryDone = timercheck >= currentTrajectory.getTotalTimeSeconds();
-        var sample = currentTrajectory.sample(timercheck);
-        var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
+      {
+        done = timercheck >= currentTrajectory.getTotalTimeSeconds();
+        sample = currentTrajectory.sample(timercheck);
+      }
+    return sample;
+    }
+    void set(Trajectory trajectory) {
+        currentTrajectory = trajectory;
+        m_swerve.resetOdometry(currentTrajectory.getInitialPose());
+        timer.restart();
+        done = false;
+      }
+  
+void stop() {
+    currentTrajectory = null;
+    done = true;
+    }
+  }
+
+TrajectoryWrap trajectoryWrap;
+
+  public class AttitudeWrap {
+    AttitudePlan current;
+    Timer timer = new Timer();
+    AttitudePlan.State report() {
+      return (current != null) ? current.report(timer.get()) : AttitudePlan.State.kZero;
+    }    
+  }
+  AttitudeWrap currentAttitudePlan;
+
+  void runTrajectory() { //  its use of odometry is still crude. TODO: less crude
+    var sample = trajectoryWrap.getSample();
+    var attitude = currentAttitudePlan.report();
+
+    var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample, attitude);
+
         SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
         SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
-        SmartDashboard.putNumber("calc x spd", desiredSpds.getX());
+        SmartDashboard.putNumber("calc x spd", desiredSpds.vxMetersPerSecond);
         
-        m_swerve.drive(desiredSpds.getX(), desiredSpds.getY(), 0, true);
-      }
+    m_swerve.drive(desiredSpds.vxMetersPerSecond, desiredSpds.vyMetersPerSecond, desiredSpds.omegaRadiansPerSecond, true);
+    
     }
     
   // Report swerve drive data
@@ -78,35 +102,14 @@ public class Robot extends TimedRobot {
     setHoodCommand(.77)
       .andThen(setHoodCommand(.05), 
         setHoodCommand((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2)).schedule();
+    trajectoryWrap.set(OurTrajectories.circleTrajectory);
   }
   @Override
   public void autonomousPeriodic() {
     //TODO: Command based:
     CommandScheduler.getInstance().run();
-/*     double autoTimercheck = autoTimer.get();
-    if(Math.abs(autoTimercheck - 1) <= kDefaultPeriod/2) 
-      actualname.adjustHood(.77);
-    if(Math.abs(autoTimercheck - 3) <= kDefaultPeriod/2) 
-      actualname.adjustHood(.05);
-    if(Math.abs(autoTimercheck - 7) <= kDefaultPeriod/2) 
-      actualname.adjustHood((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2);
- *//*     if(autoTimercheck < 7) {// Elliot's auto
-      double xSpeed = (autoTimercheck < 4) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
-      double ySpeed = (autoTimercheck < 6)&&(autoTimercheck > 2) ? 0.3 : 0; //Drive fwd 1 m/s for 2 s
-
-      m_swerve.drive(xSpeed, ySpeed, 0, useField);
-    }
-    //driveWithJoystick(false);
-    else { // Harrington's auto: it's use of odometry is still crude. TODO: less crude
-      var sample = OurTrajectories.circleTrajectory.sample(autoTimercheck - 7);
-      var desiredSpds = ctrlr.calculate(m_swerve.reportOdometry(), sample);
-      SmartDashboard.putNumber("traj x pos", sample.poseMeters.getX());
-      SmartDashboard.putNumber("traj x spd", sample.velocityMetersPerSecond);
-      SmartDashboard.putNumber("calc x spd", desiredSpds.getX());
-      
-      m_swerve.drive(desiredSpds.getX(), desiredSpds.getY(), 0, true);
-    } 
- */    m_swerve.updateOdometry();
+    runTrajectory();
+     m_swerve.updateOdometry();
   }
 
   static boolean useField = true, useVelCtrl = false;
