@@ -8,6 +8,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 
@@ -37,10 +38,11 @@ final class Constants {
                      backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
                      backRight = new Setup(8, 7, baseOffset + .25, "BR");
         
-         static final Translation2d frontLeftLocation = new Translation2d(0.381, 0.381); // unit: meters; x is forward dist from center, y is leftward
-         static final Translation2d frontRightLocation = new Translation2d(0.381, -0.381);
-         static final Translation2d backLeftLocation = new Translation2d(-0.381, 0.381);
-         static final Translation2d backRightLocation = new Translation2d(-0.381, -0.381);
+         static final double halfWidth = Units.inchesToMeters(10.75), halfLength = Units.inchesToMeters(11.5);
+         static final Translation2d frontLeftLocation = new Translation2d(halfWidth, halfLength); // unit: meters; x is forward dist from center, y is leftward
+         static final Translation2d frontRightLocation = new Translation2d(halfWidth, -halfLength);
+         static final Translation2d backLeftLocation = new Translation2d(-halfWidth, halfLength);
+         static final Translation2d backRightLocation = new Translation2d(-halfWidth, -halfLength);
          
          static final Rotation2d ClockW90 = new Rotation2d(0, 1);
          static final Translation2d frontLeftClW = frontLeftLocation.rotateBy(ClockW90); 
