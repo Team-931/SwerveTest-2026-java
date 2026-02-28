@@ -13,9 +13,11 @@ import edu.wpi.first.math.spline.PoseWithCurvature;
 import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.spline.SplineHelper;
 import edu.wpi.first.math.spline.SplineParameterizer;
+import edu.wpi.first.math.spline.SplineParameterizer.LandmarkInfo;
 import edu.wpi.first.math.spline.SplineParameterizer.MalformedSplineException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -128,6 +130,120 @@ public final class TrajectoryGenerator {
 
     // Return the generated trajectory.
     return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config);
+  }
+static final class Landmark {
+  final double key;
+  Trajectory.State state;
+  Landmark(double key) {
+    this.key = key;
+  } 
+}
+  /**
+   * Generates a trajectory from the given control vectors and config. This method uses clamped
+   * cubic splines -- a method in which the exterior control vectors and interior waypoints are
+   * provided. The headings are automatically determined at the interior points to ensure continuous
+   * curvature.
+   *
+   * @param initial The initial control vector.
+   * @param interiorWaypoints The interior waypoints.
+   * @param end The ending control vector.
+   * @param config The configuration for the trajectory.
+   * @return The generated trajectory.
+   */
+  public static Trajectory generateTrajectory(
+      Spline.ControlVector initial,
+      List<Translation2d> interiorWaypoints,
+      Spline.ControlVector end,
+      TrajectoryConfig config,
+      Collection<Landmark> landmarks) {
+
+    // Sort the landmarks
+    var landmarkArray = (Landmark[]) landmarks.toArray();
+    Arrays.sort(landmarkArray, (a, b) -> Double.compare(a.key, b.key));
+    // Prepare an array for parametrization
+    var length = landmarkArray.length;
+    var landmarkInfo = new SplineParameterizer.LandmarkInfo[length];
+    for (int ix = 0; ix < length; ++ix) {
+      landmarkInfo[ix] = new SplineParameterizer.LandmarkInfo(landmarkArray[ix].key);
+    }
+
+    // Clone the control vectors.
+    var newInitial = new Spline.ControlVector(initial.x, initial.y);
+    var newEnd = new Spline.ControlVector(end.x, end.y);
+
+    // Change the orientation if reversed.
+    if (config.isReversed()) {
+      newInitial.x[1] *= -1;
+      newInitial.y[1] *= -1;
+      newEnd.x[1] *= -1;
+      newEnd.y[1] *= -1;
+    }
+
+    // Get the spline points
+    List<PoseWithCurvature> points;
+    try {
+      points =
+          splinePointsFromSplines(
+              SplineHelper.getCubicSplinesFromControlVectors(
+                  newInitial, interiorWaypoints.toArray(new Translation2d[0]), newEnd));
+    } catch (MalformedSplineException ex) {
+      reportError(ex.getMessage(), ex.getStackTrace());
+      return kDoNothingTrajectory;
+    }
+
+    // Change the points back to their original orientation.
+    if (config.isReversed()) {
+      for (var point : points) {
+        point.poseMeters = point.poseMeters.plus(kFlip);
+        point.curvatureRadPerMeter *= -1;
+      }
+    }
+
+    // Generate and return trajectory.
+    var traj = TrajectoryParameterizer.timeParameterizeTrajectory(
+        points,
+        config.getConstraints(),
+        config.getStartVelocity(),
+        config.getEndVelocity(),
+        config.getMaxVelocity(),
+        config.getMaxAcceleration(),
+        config.isReversed());
+    // fill landmarks in.
+    for (int ix = 0; ix < length; ++ix) {
+      LandmarkInfo info = landmarkInfo[ix];
+      double param = info.splineParamOut;
+      Trajectory.State state0 = param != 1 ? traj.getStates().get(info.splineIndexOut) : null,
+                       state1 = param != 0 ? traj.getStates().get(info.splineIndexOut+1) : null,
+                       state;
+      state = state0 == null ? state1 :
+              state1 == null ? state0 : 
+              state0.interpolate(state1, param);
+      landmarkArray[ix].state = state;
+    }
+    return traj;
+  }
+
+  /**
+   * Generates a trajectory from the given waypoints and config. This method uses clamped cubic
+   * splines -- a method in which the initial pose, final pose, and interior waypoints are provided.
+   * The headings are automatically determined at the interior points to ensure continuous
+   * curvature.
+   *
+   * @param start The starting pose.
+   * @param interiorWaypoints The interior waypoints.
+   * @param end The ending pose.
+   * @param config The configuration for the trajectory.
+   * @return The generated trajectory.
+   */
+  public static Trajectory generateTrajectory(
+      Pose2d start, List<Translation2d> interiorWaypoints, Pose2d end, TrajectoryConfig config,
+      Collection<Landmark> landmarks) {
+    var controlVectors =
+        SplineHelper.getCubicControlVectorsFromWaypoints(
+            start, interiorWaypoints.toArray(new Translation2d[0]), end);
+
+    // Return the generated trajectory.
+    return generateTrajectory(controlVectors[0], interiorWaypoints, controlVectors[1], config, landmarks);
   }
 
   /**
@@ -253,6 +369,46 @@ public final class TrajectoryGenerator {
     // parameterized points to the final vector.
     for (final var spline : splines) {
       var points = SplineParameterizer.parameterize(spline);
+
+      // Append the array of poses to the vector. We are removing the first
+      // point because it's a duplicate of the last point from the previous
+      // spline.
+      splinePoints.addAll(points.subList(1, points.size()));
+    }
+    return splinePoints;
+  }
+
+  /**
+   * Generate spline points from a vector of splines by parameterizing the splines.
+   *
+   * @param splines The splines to parameterize.
+   * @param landmarkInfos landmarks to work in
+   * @return The spline points for use in time parameterization of a trajectory.
+   * @throws MalformedSplineException When the spline is malformed (e.g. has close adjacent points
+   *     with approximately opposing headings)
+   */
+  public static List<PoseWithCurvature> splinePointsFromSplines(Spline[] splines, SplineParameterizer.LandmarkInfo[] landmarkInfos) {
+    // Create the vector of spline points.
+    var splinePoints = new ArrayList<PoseWithCurvature>();
+
+    // Add the first point to the vector.
+    splinePoints.add(splines[0].getPoint(0.0).get());
+    
+    int splineIx = 0;
+    var landmarkIx = new SplineParameterizer.IntRef();
+
+    // Advance through any negative indices.
+    // The only case that won't raise OutOfBounds errors is splineIndexIn = -1, splineParamIn = 1.0
+    // which comes from key == 0.
+    for(;
+    landmarkIx.val < landmarkInfos.length 
+          && (landmarkInfos[landmarkIx.val]).splineIndexIn < 0;
+          ++ landmarkIx.val); 
+          
+    // Iterate through the vector and parameterize each spline, adding the
+    // parameterized points to the final vector.
+    for (final var spline : splines) {
+      var points = SplineParameterizer.parameterize(spline, splineIx++, splinePoints.size() - 1, landmarkInfos, landmarkIx);
 
       // Append the array of poses to the vector. We are removing the first
       // point because it's a duplicate of the last point from the previous

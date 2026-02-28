@@ -148,15 +148,48 @@ public final class SplineParameterizer {
   /** Information about a position on a trajectory,
    * both before and after parametrization.
    */
-  public static final class Landmark {
+  public static final class LandmarkInfo {
     /** the spline the landmark is in before */
-    int splineIndexIn; 
+    public final int splineIndexIn; 
     /** the displacement ([0.0, 1.0]) within the spline before */
-    double splineParamIn;
+    final double splineParamIn;
     /** the spline the landmark is in after */
-    int splineIndexOut;
+    public int splineIndexOut = -1;
     /** the displacement ([0.0, 1.0]) within the spline after */
-    double splineParamOut;
+    public double splineParamOut;
+
+    public LandmarkInfo(double key) {
+      splineIndexIn = (int)(Math.ceil(key)) - 1;
+      splineParamIn = key - splineIndexIn;
+      splineParamOut = splineParamIn;
+    }
+    void divide() {
+      splineParamOut *= 2;
+      if (splineParamOut > 1) splineParamOut -= 1;
+    }
+  }
+
+  public static class IntRef {
+    public int val;
+  }
+
+  /**
+   * Parametrizes the spline. This method breaks up the spline into various arcs until their dx, dy,
+   * and dtheta are within specific tolerances.
+   *
+   * @param spline The spline to parameterize.
+   * @param splineIn which  spline is this
+   * @param splinesOut how many spline have already been added to the list
+   * @param landmarks an array of positions along the trajectory, see {@link LandmarkInfo}
+   * @param landmarkIx where to start in landmarks; it's an IntRef to propagate changes 
+   * @return A list of poses and curvatures that represents various points on the spline.
+   * @throws MalformedSplineException When the spline is malformed (e.g. has close adjacent points
+   *     with approximately opposing headings)
+   */
+  public static List<PoseWithCurvature> parameterize(Spline spline, int splineIn, int splinesOut,
+       LandmarkInfo[] landmarks, IntRef landmarkIx) {
+    return parameterize(spline, splineIn, splinesOut,
+        landmarks, landmarkIx, 0.0, 1.0);
   }
 
   /**
@@ -165,14 +198,19 @@ public final class SplineParameterizer {
    * The landmarks will have their output information filled in.
    *
    * @param spline The spline to parameterize.
-   * @param landmarks a collection of positions along the trajectory, see {@link Landmark}
+   * @param splineIn which  spline is this
+   * @param splinesOut how many spline have already been added to the list
+   * @param landmarks an array of positions along the trajectory, see {@link LandmarkInfo}
+   * @param landmarkIx where to start in landmarks; it's an {@link IntRef} to propagate changes
    * @param t0 Starting internal spline parameter. It is recommended to use 0.0.
    * @param t1 Ending internal spline parameter. It is recommended to use 1.0.
    * @return A list of poses and curvatures that represents various points on the spline.
    * @throws MalformedSplineException When the spline is malformed (e.g. has close adjacent points
    *     with approximately opposing headings)
    */
-  public static List<PoseWithCurvature> parameterize(Spline spline, List<Landmark> landmarks, double t0, double t1) {
+  public static List<PoseWithCurvature> parameterize(
+       Spline spline, int splineIn, int splinesOut,
+       LandmarkInfo[] landmarks, IntRef landmarkIx, double t0, double t1) {
     var splinePoints = new ArrayList<PoseWithCurvature>();
 
     // The parameterization does not add the initial point. Let's add that.
@@ -199,12 +237,27 @@ public final class SplineParameterizer {
       }
 
       final var twist = start.get().poseMeters.log(end.get().poseMeters);
+        LandmarkInfo l;
       if (Math.abs(twist.dy) > kMaxDy
           || Math.abs(twist.dx) > kMaxDx
           || Math.abs(twist.dtheta) > kMaxDtheta) {
+        for (
+          int ix = landmarkIx.val; 
+          ix < landmarks.length 
+          && (l = landmarks[ix]).splineIndexIn == splineIn 
+          && l.splineParamIn <= current.t1;
+          ) 
+          l.divide();
         stack.addFirst(new StackContents((current.t0 + current.t1) / 2, current.t1));
         stack.addFirst(new StackContents(current.t0, (current.t0 + current.t1) / 2));
       } else {
+        for (
+          ; 
+          landmarkIx.val < landmarks.length 
+          && (l = landmarks[landmarkIx.val]).splineIndexIn == splineIn 
+          && l.splineParamIn <= current.t1;
+          ++ landmarkIx.val) 
+          l.splineIndexOut = splinePoints.size() + splinesOut;
         splinePoints.add(end.get());
       }
 
