@@ -19,8 +19,11 @@ import frc.robot.Constants.ShootConstants;
 
 public class Robot extends TimedRobot {
   private final XboxController drive_controller = new XboxController(0);
+  private final XboxController opController= new XboxController(1);
   private final Drivetrain m_swerve = new Drivetrain();
   private final transferShooter actualname = new transferShooter();
+  private final Feeder feeder = new Feeder();
+
   {new OurTrajectories();}
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
@@ -111,6 +114,8 @@ public class Robot extends TimedRobot {
     driveWithJoystick(useField);
     m_swerve.updateOdometry();
     // if (drive_controller.getLeftStickButtonPressed()) actualname.shoot(true);
+    if(opController.getAButtonPressed()) feeder.run(true);
+    if(opController.getAButtonReleased()) feeder.run(false);
 
     //if(drive_controller.getBButton()){System.out.println("Hello world");}
     
@@ -150,8 +155,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Field Centered", useField);
   }
   private void driveWithJoystick(boolean fieldRelative) {
-    if(drive_controller.getRightBumperButtonPressed()) m_swerve.doAngle360(true); //TODO: don't need after abs encoders are in
-    if(drive_controller.getRightBumperButtonReleased()) m_swerve.doAngle360(false); //TODO: don't need after abs encoders are in,
     if(drive_controller.getLeftBumperButtonPressed()) m_swerve.setXPosture();
     if(drive_controller.getAButtonPressed()) m_swerve.zeroYaw(); /* useVelCtrl ^= true; */
     if(drive_controller.getBButtonPressed()) {

@@ -87,6 +87,17 @@ final class Constants {
         static final Distance kServoLength = Millimeters.of(100);
         /** Time for hood Servos to run their full length */
         static final double hoodFullLengthTime = kServoLength.div(kMaxServoSpeed).in(Seconds);
+        static final int leftShooterID = 1;
+        static final int midShootID = 2;
+        static final int RightShootID = 3;
+        static final int transferMotorID = 4;
+        static final int leftServoID = 1;
+        static final int rightServoID = 9;
+    }
+    static final class FeederConst {
+    
+        static final int motorID = 5;
+        static final double runPower = .3;
     }
     
 }

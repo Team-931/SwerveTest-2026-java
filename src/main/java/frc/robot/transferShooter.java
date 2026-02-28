@@ -18,17 +18,17 @@ import frc.robot.Constants.ShootConstants;
 
 
 public class transferShooter { 
-    Servo leftServo=new Servo(1), rightServo=new Servo(9);
+    Servo leftServo=new Servo(ShootConstants.leftServoID), rightServo=new Servo(ShootConstants.rightServoID);
     {
         leftServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
         rightServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
         //adjustHood((ShootConstants.kMaxPosition + ShootConstants.kMinPosition) / 2);
     }
 
-    TalonFX shooterLeft=new TalonFX(1), shooterMid=new TalonFX(2), shooterRight=new TalonFX(3), 
-    transfer=new TalonFX(4);
+    TalonFX shooterLeft=new TalonFX(ShootConstants.leftShooterID), shooterMid=new TalonFX(ShootConstants.midShootID), shooterRight=new TalonFX(ShootConstants.RightShootID), 
+    transfer=new TalonFX(ShootConstants.transferMotorID);
     {configureMotor(shooterLeft, InvertedValue.CounterClockwise_Positive);}
-    Follower followLeft = new Follower(1, MotorAlignmentValue.Opposed);
+    Follower followLeft = new Follower(ShootConstants.leftShooterID, MotorAlignmentValue.Opposed);
     {
         shooterMid.setControl(followLeft); 
         shooterRight.setControl(followLeft);
