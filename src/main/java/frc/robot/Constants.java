@@ -51,8 +51,10 @@ final class Constants {
          static final Translation2d backRightClW = backRightLocation.rotateBy(ClockW90);
          
          static final double driveRadius = 
-                 Math.max(frontLeftLocation.getNorm(), Math.max(frontRightLocation.getNorm(), 
-                 Math.max(backLeftLocation.getNorm(), backRightLocation.getNorm())));
+                 MyMath.max(
+                    frontLeftLocation.getNorm(), frontRightLocation.getNorm(), 
+                    backLeftLocation.getNorm(), backRightLocation.getNorm()
+                    );
                  
         /**  how much to correct position errors during a Trajectory:
          * units of proportion / sec
