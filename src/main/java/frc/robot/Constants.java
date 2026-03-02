@@ -18,21 +18,27 @@ final class Constants {
     static final double krakenFreeSpeed = (6000); /* RPM */
   
     static final class DrvConst {
-         static final double kMaxSpeed = 3.0, overloadSpeed = kMaxSpeed/* or SwvModConst.freeVeloc */; // 3 meters per second
+         static final double kMaxSpeed = 3.0, overloadSpeed = SwvModConst.freeVeloc/* or kMaxSpeed */; // meters per second
          static final double kMaxAngularSpeed = 1*Math.PI; // 0.5 rotation per second, was 0.5 rad/s before
+         /** Everything specific to one wheel corner */
          static final class Setup {
+            /** motor CAN IDs */
             final int driveId, turnId;
+            /** known orientation of absolute encoder (when wheel is forward) */
             final double absOffset;
+            /** identifying string to label reports with */
             final String name;
-            Setup(int drv, int trn, double offset, String nam3) {
+            /** just fill the data in */
+            Setup(int drv, int trn, double offset, String name) {
                 driveId = drv;
                 turnId = trn;
                 absOffset = offset;
-                name = nam3;
+                this.name = name;
             }
          }
 
-         static final double baseOffset = .1875; // .18611111111111111111111111111111
+         static final double baseOffset = .1875; // 67.5 degrees or 3/16 circle
+         /** each {@link absOffet} is 1/4 circle rotated from the adjacent one.*/
          static Setup frontLeft = new Setup(3, 5, baseOffset + .75, "FL"),
                      frontRight = new Setup(9, 6, baseOffset, "FR"),
                      backLeft = new Setup(2, 4, baseOffset + .5, "BL"),
@@ -64,21 +70,24 @@ final class Constants {
 
     }
     static final class SwvModConst {
-        final static ClosedLoopSlot posSlot = ClosedLoopSlot.kSlot0;
-        final static double posP = .5;
-        final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
-        final static double velP = .0001;
-        static final double kWheelRadius = .05931 / 2; /* 0.034 */; //meter //diameter: 2.335 in, 59.31 mm
-        static final double freeVeloc = 4.63; //5.31;
-         //TODO: tune better
-        static final double DrvFF = 1 / freeVeloc; // Officially Volt /(m/s), conjectured: proportional output / (m/s)
+        // factors to translate encoder readings into useful units
+        static final double kWheelRadius = .05931 / 2; //meter //diameter: 2.335 in, 59.31 mm
+        static final double freeVeloc = 4.63; // meters / sec, full power, no load
         static final int turnGearing = 28, driveGearing = 4;
         static final double driveConversion = 2 * Math.PI * kWheelRadius / driveGearing, // motor rotations to output meters
         // TODO Decide whether turn unit should be radians, or rotations as currently.
                             turnConversion = 1. / turnGearing;
+        // Tuning for the contron loops
+        final static ClosedLoopSlot posSlot = ClosedLoopSlot.kSlot0;
+        final static double posP = .5;
+        final static ClosedLoopSlot velSlot = ClosedLoopSlot.kSlot1;
+        final static double velP = .0001;
+         //TODO: tune better
+        static final double DrvFF = 1 / freeVeloc; // Officially Volt /(m/s), conjectured: proportional output / (m/s)
         static final double velI = 0.001, velIZone = .05;
         static final double turnI = 0.003 * posP, turnIZone = 1. / 64;
-        static final double minSpd = .001, // mm / s
+        // what speed can be ignored for wheel orientation
+        static final double minSpd = .001, // 1.0 mm / s
                             minSpdSq = minSpd*minSpd;
     }
     static final class ShootConstants {

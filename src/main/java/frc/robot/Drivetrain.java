@@ -105,13 +105,6 @@ void fullSpeed() {
   frontLeft.fullSpeed();
   frontRight.fullSpeed();
 }
-
-  void doAngle360(boolean yes) {//TODO: don't need after abs encoders are in
-    backLeft.doAngle360(yes);
-    backRight.doAngle360(yes);
-    frontLeft.doAngle360(yes);
-    frontRight.doAngle360(yes);
-  }
   /** Display debugging info */
    void report() {
     frontLeft.report();
